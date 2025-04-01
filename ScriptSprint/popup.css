@@ -1,0 +1,71 @@
+body {
+    font-family: 'Arial', sans-serif;
+    background-color: #fff; /* branco */
+    color: #333; /* texto escuro */
+    margin: 20px;
+}
+
+h2 {
+    color: #007bff; /* azul brilhante */
+}
+
+label {
+    display: block;
+    margin-bottom: 5px;
+    color: #333; /* texto escuro */
+}
+
+textarea,
+input {
+    width: 100%;
+    padding: 8px;
+    margin-bottom: 10px;
+    box-sizing: border-box;
+}
+
+button {
+    background-color: #007bff; /* azul brilhante */
+    color: #fff; /* texto branco */
+    padding: 10px 15px;
+    border: none;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+button:hover {
+    background-color: #0056b3; /* azul mais escuro no hover */
+}
+
+ul {
+    list-style: none;
+    padding: 0;
+}
+
+li {
+    margin-bottom: 10px;
+    padding: 10px;
+    background-color: #f0f8ff; /* azul claro */
+    border: 1px solid #007bff; /* azul brilhante */
+    position: relative;
+}
+
+li button {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+}
+
+/* Estilo para a seção de boas-vindas */
+#welcomeSection {
+    text-align: center;
+}
+
+/* Estilo para a seção de criar comando */
+#createCommandSection {
+    display: none;
+}
+
+/* Estilo para a seção de lista de comandos */
+#commandListSection {
+    display: none;
+}
