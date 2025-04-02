@@ -1,15 +1,26 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SprintScript</title>
+    <link rel="stylesheet" type="text/css" href="styles.css">
 </head>
 <body>
-    <h1>Configurar Atalhos</h1>
-    <input type="text" id="shortcut" placeholder="Digite o atalho">
-    <input type="text" id="replacement" placeholder="Texto substituto">
-    <button id="save">Salvar</button>
+    <h1>SprintScript</h1>
+    
+    <label for="shortcut">Atalho:</label>
+    <input type="text" id="shortcut" placeholder="Ex: /linkedin">
+    
+    <label for="replacement">Texto:</label>
+    <input type="text" id="replacement" placeholder="Ex: https://linkedin.com/seu-perfil">
+    
+    <button id="saveButton">Salvar</button>
+    <div id="message" style="color: green; display: none;">Atalho salvo!</div>
+
+    <h3>Atalhos Salvos</h3>
     <ul id="shortcutList"></ul>
+
     <script src="popup.js"></script>
 </body>
 </html>

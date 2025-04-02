@@ -1,34 +1,91 @@
-document.addEventListener("DOMContentLoaded", function() {
-    const shortcutInput = document.getElementById("shortcut");
-    const replacementInput = document.getElementById("replacement");
-    const saveButton = document.getElementById("save");
-    const shortcutList = document.getElementById("shortcutList");
+document.addEventListener("DOMContentLoaded", () => {
+    carregarAtalhos();
 
-    function loadShortcuts() {
-        chrome.storage.sync.get("shortcuts", function(data) {
-            shortcutList.innerHTML = "";
-            const shortcuts = data.shortcuts || {};
-            Object.keys(shortcuts).forEach(key => {
-                const li = document.createElement("li");
-                li.textContent = `${key} → ${shortcuts[key]}`;
-                shortcutList.appendChild(li);
-            });
-        });
+    document.getElementById("saveButton").addEventListener("click", salvarAtalho);
+});
+
+function salvarAtalho() {
+    let atalho = document.getElementById("shortcut").value.trim();
+    let texto = document.getElementById("replacement").value.trim();
+
+    if (!atalho || !texto) {
+        mostrarMensagem("Por favor, preencha ambos os campos!");
+        return;
     }
 
-    saveButton.addEventListener("click", function() {
-        const shortcut = shortcutInput.value.trim();
-        const replacement = replacementInput.value.trim();
-        if (shortcut && replacement) {
-            chrome.storage.sync.get("shortcuts", function(data) {
-                const shortcuts = data.shortcuts || {};
-                shortcuts[shortcut] = replacement;
-                chrome.storage.sync.set({ shortcuts }, function() {
-                    loadShortcuts();
-                });
-            });
-        }
-    });
+    chrome.storage.sync.get(["shortcuts"], (result) => {
+        // Verifica se result existe e tem a propriedade shortcuts
+        let shortcuts = result?.shortcuts || {};
+        shortcuts[atalho] = texto;
 
-    loadShortcuts();
-});
+        chrome.storage.sync.set({ shortcuts }, () => {
+            if (chrome.runtime.lastError) {
+                mostrarMensagem("Erro ao salvar: " + chrome.runtime.lastError.message);
+                return;
+            }
+            mostrarMensagem("Atalho salvo com sucesso!");
+            document.getElementById("shortcut").value = "";
+            document.getElementById("replacement").value = "";
+            carregarAtalhos();
+        });
+    });
+}
+
+function carregarAtalhos() {
+    chrome.storage.sync.get(["shortcuts"], (result) => {
+        if (chrome.runtime.lastError) {
+            console.error("Erro ao carregar atalhos:", chrome.runtime.lastError);
+            return;
+        }
+
+        let shortcuts = result?.shortcuts || {};
+        let lista = document.getElementById("shortcutList");
+        lista.innerHTML = "";
+
+        if (Object.keys(shortcuts).length === 0) {
+            lista.innerHTML = "<li>Nenhum atalho cadastrado</li>";
+            return;
+        }
+
+        Object.entries(shortcuts).forEach(([atalho, texto]) => {
+            let item = document.createElement("li");
+            
+            // Adiciona botão de remoção
+            let removeBtn = document.createElement("button");
+            removeBtn.textContent = "×";
+            removeBtn.className = "remove-btn";
+            removeBtn.onclick = () => removerAtalho(atalho);
+            
+            item.textContent = `${atalho} → ${texto} `;
+            item.appendChild(removeBtn);
+            lista.appendChild(item);
+        });
+    });
+}
+
+function removerAtalho(atalho) {
+    chrome.storage.sync.get(["shortcuts"], (result) => {
+        let shortcuts = result?.shortcuts || {};
+        delete shortcuts[atalho];
+        
+        chrome.storage.sync.set({ shortcuts }, () => {
+            if (chrome.runtime.lastError) {
+                mostrarMensagem("Erro ao remover atalho");
+                return;
+            }
+            mostrarMensagem("Atalho removido!");
+            carregarAtalhos();
+        });
+    });
+}
+
+function mostrarMensagem(texto) {
+    let mensagem = document.getElementById("message");
+    if (!mensagem) return;
+    
+    mensagem.textContent = texto;
+    mensagem.style.display = "block";
+    setTimeout(() => {
+        mensagem.style.display = "none";
+    }, 2000);
+}   
