@@ -2,8 +2,15 @@
   "manifest_version": 2,
   "name": "SprintScript",
   "version": "1.0",
-  "description": "Substitui atalhos de texto por trechos salvos",
-  "permissions": ["storage"],
+  "description": "Substitua atalhos de texto por links e frases completas com confirmação.",
+  "permissions": [
+    "storage",
+    "activeTab"
+  ],
+  "background": {
+    "scripts": ["background.js"],
+    "persistent": false
+  },
   "content_scripts": [
     {
       "matches": ["<all_urls>"],
@@ -11,9 +18,17 @@
       "run_at": "document_idle"
     }
   ],
+  "browser_action": {
+    "default_popup": "popup.html",
+    "default_icon": "icon.png"
+  },
+  "icons": {
+    "48": "icon.png"
+  },
   "browser_specific_settings": {
     "gecko": {
-      "id": "sprintscript@exemplo.com"
+      "id": "sprintscript@seu-email.com",
+      "strict_min_version": "57.0"
     }
   }
 }

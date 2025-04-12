@@ -1,32 +1,26 @@
 <!DOCTYPE html>
-<html lang="pt">
+<html lang="pt-BR">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SprintScript</title>
-    <link rel="stylesheet" href="styles.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Atalhos Personalizados</title>
+  <link rel="stylesheet" href="popup.css" />
 </head>
 <body>
-    <div class="container">
-        <h1>SprintScript</h1>
-        
-        <div class="form-group">
-            <label for="shortcut">Atalho:</label>
-            <input type="text" id="shortcut" placeholder="Ex: /linkedin">
-        </div>
-        
-        <div class="form-group">
-            <label for="replacement">Substituição:</label>
-            <input type="text" id="replacement" placeholder="Ex: https://linkedin.com/seu-perfil">
-        </div>
-        
-        <button id="saveButton" class="btn">Salvar Atalho</button>
-        <div id="message" class="message"></div>
-
-        <h3>Atalhos Salvos</h3>
-        <ul id="shortcutList" class="shortcut-list"></ul>
+  <div class="container">
+    <h1>Atalhos</h1>
+    
+    <div class="form">
+      <input type="text" id="shortcut" placeholder="Digite o atalho (ex: /linkedin)" />
+      <input type="text" id="replacement" placeholder="Texto substituto" />
+      <button id="saveButton">Salvar</button>
     </div>
 
-    <script src="popup.js"></script>
+    <ul id="shortcutList"></ul>
+
+    <div id="message">Atalho salvo com sucesso!</div>
+  </div>
+
+  <script src="popup.js"></script>
 </body>
 </html>

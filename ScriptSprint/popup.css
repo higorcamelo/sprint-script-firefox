@@ -1,78 +1,69 @@
 body {
+    font-family: sans-serif;
+    margin: 0;
+    padding: 10px;
     width: 300px;
-    padding: 15px;
-    font-family: Arial, sans-serif;
-}
-
-.container {
+    background: #f9f9f9;
+  }
+  
+  .container {
     display: flex;
     flex-direction: column;
     gap: 10px;
-}
-
-.form-group {
+  }
+  
+  h1 {
+    margin: 0;
+    font-size: 1.2rem;
+    color: #333;
+  }
+  
+  .form {
     display: flex;
     flex-direction: column;
     gap: 5px;
-}
-
-input {
-    padding: 8px;
+  }
+  
+  input {
+    padding: 6px;
     border: 1px solid #ccc;
-    border-radius: 4px;
-}
-
-.btn {
-    padding: 8px 12px;
-    background-color: #4CAF50;
+    border-radius: 5px;
+  }
+  
+  button {
+    padding: 8px;
+    background-color: #007bff;
     color: white;
     border: none;
-    border-radius: 4px;
+    border-radius: 5px;
     cursor: pointer;
-}
-
-.btn:hover {
-    background-color: #45a049;
-}
-
-.shortcut-list {
+  }
+  
+  button:hover {
+    background-color: #0056b3;
+  }
+  
+  #shortcutList {
     list-style-type: none;
     padding: 0;
-    margin: 0;
-}
-
-.shortcut-list li {
-    padding: 8px;
-    border-bottom: 1px solid #eee;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-.remove-btn {
-    background-color: #f44336;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    padding: 2px 6px;
-    cursor: pointer;
-}
-
-.message {
-    padding: 8px;
-    border-radius: 4px;
-    display: none;
     margin-top: 10px;
-}
-
-.message.success {
-    background-color: #dff0d8;
-    color: #3c763d;
-    display: block;
-}
-
-.message.error {
-    background-color: #f2dede;
-    color: #a94442;
-    display: block;
-}
+    max-height: 200px;
+    overflow-y: auto;
+  }
+  
+  #shortcutList li {
+    background: #ffffff;
+    padding: 8px;
+    border: 1px solid #ddd;
+    margin-bottom: 5px;
+    border-radius: 5px;
+    font-size: 0.9rem;
+  }
+  
+  #message {
+    display: none;
+    color: green;
+    font-size: 0.85rem;
+    margin-top: 5px;
+  }
+  
