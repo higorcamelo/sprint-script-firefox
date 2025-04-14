@@ -1,113 +1,122 @@
 document.addEventListener("DOMContentLoaded", () => {
-    carregarAtalhos();
-    document.getElementById("saveButton").addEventListener("click", salvarAtalho);
+    loadShortcuts();
+    document.getElementById("saveButton").addEventListener("click", saveShortcut);
 });
 
-function salvarAtalho() {
-    const atalho = document.getElementById("shortcut").value.trim();
-    const texto = document.getElementById("replacement").value.trim();
+function saveShortcut() {
+    const shortcut = document.getElementById("shortcut").value.trim();
+    const replacement = document.getElementById("replacement").value.trim();
 
-    if (!atalho || !texto) {
-        mostrarMensagem("Por favor, preencha ambos os campos!", "error");
+    if (!shortcut || !replacement) {
+        showMessage("Please fill in both fields!", "error");
         return;
     }
 
     chrome.storage.sync.get(["shortcuts"], (result) => {
         const shortcuts = result?.shortcuts || {};
-        
-        if (shortcuts[atalho]) {
-            if (!confirm(`O atalho "${atalho}" já existe. Deseja substituir?`)) {
-                return;
-            }
-        }
 
-        shortcuts[atalho] = texto;
-
-        chrome.storage.sync.set({ shortcuts }, () => {
-            if (chrome.runtime.lastError) {
-                mostrarMensagem("Erro ao salvar: " + chrome.runtime.lastError.message, "error");
-                return;
-            }
-            mostrarMensagem("Atalho salvo com sucesso!", "success");
-            document.getElementById("shortcut").value = "";
-            document.getElementById("replacement").value = "";
-            carregarAtalhos();
-            
-            // Atualiza os content scripts
-            chrome.tabs.query({active: true, currentWindow: true}, (tabs) => {
-                chrome.tabs.sendMessage(tabs[0].id, {action: "updateShortcuts"});
+        if (shortcuts[shortcut]) {
+            openConfirmModal(() => {
+                shortcuts[shortcut] = replacement;
+                saveAndRefresh(shortcuts, shortcut);
             });
+        } else {
+            shortcuts[shortcut] = replacement;
+            saveAndRefresh(shortcuts, shortcut);
+        }
+    });
+}
+
+function saveAndRefresh(shortcuts, shortcut) {
+    chrome.storage.sync.set({ shortcuts }, () => {
+        if (chrome.runtime.lastError) {
+            showMessage("Error saving: " + chrome.runtime.lastError.message, "error");
+            return;
+        }
+        showMessage("Shortcut saved successfully!", "success");
+        document.getElementById("shortcut").value = "";
+        document.getElementById("replacement").value = "";
+        loadShortcuts();
+
+        chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+            chrome.tabs.sendMessage(tabs[0].id, { action: "updateShortcuts" });
         });
     });
 }
 
-function carregarAtalhos() {
+function loadShortcuts() {
     chrome.storage.sync.get(["shortcuts"], (result) => {
         if (chrome.runtime.lastError) {
-            console.error("Erro ao carregar atalhos:", chrome.runtime.lastError);
+            console.error("Error loading shortcuts:", chrome.runtime.lastError);
             return;
         }
 
         const shortcuts = result?.shortcuts || {};
-        const lista = document.getElementById("shortcutList");
-        lista.innerHTML = "";
+        const list = document.getElementById("shortcutList");
+        list.innerHTML = "";
 
         if (Object.keys(shortcuts).length === 0) {
-            lista.innerHTML = "<li class='empty'>Nenhum atalho cadastrado</li>";
+            list.innerHTML = "<li class='empty'>No shortcuts saved</li>";
             return;
         }
 
-        Object.entries(shortcuts).forEach(([atalho, texto]) => {
-            const item = document.createElement("li");
-            
-            const textSpan = document.createElement("span");
-            textSpan.textContent = `${atalho} → ${texto}`;
-            
-            const removeBtn = document.createElement("button");
-            removeBtn.textContent = "Remover";
-            removeBtn.className = "remove-btn";
-            removeBtn.onclick = () => removerAtalho(atalho);
-            
-            item.appendChild(textSpan);
-            item.appendChild(removeBtn);
-            lista.appendChild(item);
+        Object.entries(shortcuts).forEach(([shortcut, text]) => {
+            const li = document.createElement("li");
+            li.textContent = `${shortcut} → ${text}`;
+
+            const deleteBtn = document.createElement("button");
+            deleteBtn.textContent = "×";
+            deleteBtn.classList.add("delete-btn");
+
+            deleteBtn.addEventListener("click", () => {
+                openConfirmModal(() => {
+                    delete shortcuts[shortcut];
+                    chrome.storage.sync.set({ shortcuts }, () => {
+                        showMessage("Shortcut deleted", "success");
+                        loadShortcuts();
+                    });
+                });
+            });
+
+            li.appendChild(deleteBtn);
+            list.appendChild(li);
         });
     });
 }
 
-function removerAtalho(atalho) {
-    if (!confirm(`Tem certeza que deseja remover o atalho "${atalho}"?`)) {
-        return;
+function showMessage(message, type) {
+    const messageDiv = document.getElementById("message");
+    messageDiv.textContent = message;
+    messageDiv.className = type;
+    messageDiv.style.display = "block";
+    setTimeout(() => {
+        messageDiv.style.display = "none";
+    }, 2500);
+}
+
+// Modal logic
+function openConfirmModal(onConfirm) {
+    const modal = document.getElementById("confirmModal");
+    modal.classList.remove("hidden");
+
+    const confirmBtn = document.getElementById("confirmDelete");
+    const cancelBtn = document.getElementById("cancelDelete");
+
+    function cleanup() {
+        confirmBtn.removeEventListener("click", handleConfirm);
+        cancelBtn.removeEventListener("click", handleCancel);
+        modal.classList.add("hidden");
     }
 
-    chrome.storage.sync.get(["shortcuts"], (result) => {
-        const shortcuts = result?.shortcuts || {};
-        delete shortcuts[atalho];
-        
-        chrome.storage.sync.set({ shortcuts }, () => {
-            if (chrome.runtime.lastError) {
-                mostrarMensagem("Erro ao remover atalho", "error");
-                return;
-            }
-            mostrarMensagem("Atalho removido com sucesso!", "success");
-            carregarAtalhos();
-            
-            // Atualiza os content scripts
-            chrome.tabs.query({active: true, currentWindow: true}, (tabs) => {
-                chrome.tabs.sendMessage(tabs[0].id, {action: "updateShortcuts"});
-            });
-        });
-    });
-}
+    function handleConfirm() {
+        onConfirm();
+        cleanup();
+    }
 
-function mostrarMensagem(texto, tipo = "success") {
-    const mensagem = document.getElementById("message");
-    if (!mensagem) return;
-    
-    mensagem.textContent = texto;
-    mensagem.className = `message ${tipo}`;
-    
-    setTimeout(() => {
-        mensagem.style.display = "none";
-    }, 3000);
+    function handleCancel() {
+        cleanup();
+    }
+
+    confirmBtn.addEventListener("click", handleConfirm);
+    cancelBtn.addEventListener("click", handleCancel);
 }

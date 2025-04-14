@@ -1,33 +1,31 @@
-console.log("SprintScript ativo!");
+// Variable to store dynamic shortcuts (key: command, value: substitution)
+let substitutions = {};
 
-// Variável para guardar os atalhos dinâmicos (chave: comando, valor: substituição)
-let substituicoes = {};
-
-// Carrega os atalhos salvos do storage
-function loadSubstituicoes(callback) {
+// Load saved shortcuts from storage
+function loadSubstitutions(callback) {
     chrome.storage.sync.get("shortcuts", (result) => {
-        substituicoes = result?.shortcuts || {};
-        console.log("Atalhos carregados:", substituicoes);
+        substitutions = result?.shortcuts || {};
+        console.log("Shortcuts loaded:", substitutions);
         if (callback) callback();
     });
 }
 
-// Chama o load inicial
-loadSubstituicoes();
+// Call initial load
+loadSubstitutions();
 
-// Escuta mensagens para atualizar os atalhos dinamicamente
+// Listen for messages to update shortcuts dynamically
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     if (message.action === "updateShortcuts") {
-        loadSubstituicoes();
+        loadSubstitutions();
     }
 });
 
-// Cria (ou reutiliza) o elemento tooltip para confirmação
+// Create (or reuse) the tooltip element for confirmation
 let tooltip = document.getElementById("sprint-tooltip");
 if (!tooltip) {
     tooltip = document.createElement("div");
     tooltip.id = "sprint-tooltip";
-    // Estilos básicos do tooltip (ajuste conforme preferir)
+    // Basic styles for the tooltip (adjust as preferred)
     tooltip.style.position = "absolute";
     tooltip.style.background = "#fff";
     tooltip.style.border = "1px solid #ccc";
@@ -41,17 +39,17 @@ if (!tooltip) {
 }
 
 /**
- * Exibe o tooltip de confirmação perto do elemento.
- * @param {HTMLElement} elemento - O campo onde o atalho foi detectado.
- * @param {string} atalho - O atalho detectado (ex: "/linkedin").
- * @param {string} texto - O texto para substituição.
- * @param {number} posX - Posição horizontal para o tooltip.
- * @param {number} posY - Posição vertical para o tooltip.
- * @param {Function} confirmCallback - Função executada se o usuário confirmar.
+ * Displays the confirmation tooltip near the element.
+ * @param {HTMLElement} element - The field where the shortcut was detected.
+ * @param {string} shortcut - The detected shortcut (e.g., "/linkedin").
+ * @param {string} text - The text to substitute.
+ * @param {number} posX - Horizontal position for the tooltip.
+ * @param {number} posY - Vertical position for the tooltip.
+ * @param {Function} confirmCallback - Function executed if the user confirms.
  */
-function mostrarTooltip(elemento, atalho, texto, posX, posY, confirmCallback) {
+function showTooltip(element, shortcut, text, posX, posY, confirmCallback) {
     tooltip.innerHTML = `
-        Substituir <b>${atalho}</b> por <b>${texto}</b>?
+        Replace <b>${shortcut}</b> with <b>${text}</b>?
         <button id="sprint-confirm">✔</button>
         <button id="sprint-cancel">✖</button>
     `;
@@ -69,118 +67,118 @@ function mostrarTooltip(elemento, atalho, texto, posX, posY, confirmCallback) {
 }
 
 /**
- * Chama o tooltip para confirmação e, se confirmado, executa a substituição.
- * @param {HTMLElement} campo - O elemento (input/textarea ou contenteditable).
- * @param {string} atalho - O atalho detectado.
- * @param {string} texto - O texto para substituir.
- * @param {string} tipo - "input" ou "contenteditable"
+ * Calls the tooltip for confirmation and, if confirmed, performs the substitution.
+ * @param {HTMLElement} field - The element (input/textarea or contenteditable).
+ * @param {string} shortcut - The detected shortcut.
+ * @param {string} text - The text to replace.
+ * @param {string} type - "input" or "contenteditable"
  */
-function confirmarSubstituicao(campo, atalho, texto, tipo) {
-    const rect = campo.getBoundingClientRect();
+function confirmSubstitution(field, shortcut, text, type) {
+    const rect = field.getBoundingClientRect();
     const posX = rect.left + window.scrollX + 10;
     const posY = rect.bottom + window.scrollY + 5;
 
-    mostrarTooltip(campo, atalho, texto, posX, posY, function() {
-        if (tipo === "input") {
-            substituirEmCampoTexto(campo, atalho, texto);
+    showTooltip(field, shortcut, text, posX, posY, function() {
+        if (type === "input") {
+            replaceInTextField(field, shortcut, text);
         } else {
-            substituirEmContentEditable(campo, atalho, texto);
+            replaceInContentEditable(field, shortcut, text);
         }
     });
 }
 
 /**
- * Substitui o atalho por texto em inputs e textareas.
- * @param {HTMLInputElement|HTMLTextAreaElement} campo 
- * @param {string} atalho 
- * @param {string} texto 
+ * Replaces the shortcut with text in inputs and textareas.
+ * @param {HTMLInputElement|HTMLTextAreaElement} field 
+ * @param {string} shortcut 
+ * @param {string} text 
  */
-function substituirEmCampoTexto(campo, atalho, texto) {
-    const valor = campo.value;
-    if (!valor) return;
-    if (valor.includes(atalho)) {
-        const novoValor = valor.replaceAll(atalho, texto);
-        console.log(`Substituindo ${atalho} por ${texto} em input`);
-        campo.value = novoValor;
-        campo.dispatchEvent(new Event("input", { bubbles: true }));
+function replaceInTextField(field, shortcut, text) {
+    const value = field.value;
+    if (!value) return;
+    if (value.includes(shortcut)) {
+        const newValue = value.replaceAll(shortcut, text);
+        console.log(`Replacing ${shortcut} with ${text} in input`);
+        field.value = newValue;
+        field.dispatchEvent(new Event("input", { bubbles: true }));
     }
 }
 
 /**
- * Substitui o atalho por texto em elementos contenteditable.
+ * Replaces the shortcut with text in contenteditable elements.
  * @param {HTMLElement} el 
- * @param {string} atalho 
- * @param {string} texto 
+ * @param {string} shortcut 
+ * @param {string} text 
  */
-function substituirEmContentEditable(el, atalho, texto) {
-    const valor = el.innerText;
-    if (!valor) return;
-    if (valor.includes(atalho)) {
-        const novoValor = valor.replaceAll(atalho, texto);
-        console.log(`Substituindo ${atalho} por ${texto} em contenteditable`);
-        el.innerText = novoValor;
+function replaceInContentEditable(el, shortcut, text) {
+    const value = el.innerText;
+    if (!value) return;
+    if (value.includes(shortcut)) {
+        const newValue = value.replaceAll(shortcut, text);
+        console.log(`Replacing ${shortcut} with ${text} in contenteditable`);
+        el.innerText = newValue;
         el.dispatchEvent(new Event("input", { bubbles: true }));
     }
 }
 
 /**
- * Processa um campo input/textarea e, se encontrar algum atalho, aciona a confirmação.
- * @param {HTMLInputElement|HTMLTextAreaElement} campo 
+ * Processes an input/textarea field and triggers confirmation if a shortcut is found.
+ * @param {HTMLInputElement|HTMLTextAreaElement} field 
  */
-function processarCampoTexto(campo) {
-    const valor = campo.value;
-    if (!valor) return;
-    Object.entries(substituicoes).forEach(([atalho, texto]) => {
-        if (valor.includes(atalho)) {
-            confirmarSubstituicao(campo, atalho, texto, "input");
+function processTextField(field) {
+    const value = field.value;
+    if (!value) return;
+    Object.entries(substitutions).forEach(([shortcut, text]) => {
+        if (value.includes(shortcut)) {
+            confirmSubstitution(field, shortcut, text, "input");
         }
     });
 }
 
 /**
- * Processa um elemento contenteditable e, se encontrar algum atalho, aciona a confirmação.
+ * Processes a contenteditable element and triggers confirmation if a shortcut is found.
  * @param {HTMLElement} el 
  */
-function processarContentEditable(el) {
-    const valor = el.innerText;
-    if (!valor) return;
-    Object.entries(substituicoes).forEach(([atalho, texto]) => {
-        if (valor.includes(atalho)) {
-            confirmarSubstituicao(el, atalho, texto, "contenteditable");
+function processContentEditable(el) {
+    const value = el.innerText;
+    if (!value) return;
+    Object.entries(substitutions).forEach(([shortcut, text]) => {
+        if (value.includes(shortcut)) {
+            confirmSubstitution(el, shortcut, text, "contenteditable");
         }
     });
 }
 
-function adicionarListeners() {
+function addListeners() {
     const inputs = document.querySelectorAll("input[type='text'], textarea");
-    const editaveis = document.querySelectorAll("[contenteditable='true']");
+    const editables = document.querySelectorAll("[contenteditable='true']");
 
-    inputs.forEach(campo => {
-        // Remove listeners antigos para evitar duplicação
-        campo.removeEventListener("input", listenerInput);
-        campo.addEventListener("input", listenerInput);
+    inputs.forEach(field => {
+        // Remove old listeners to avoid duplication
+        field.removeEventListener("input", listenerInput);
+        field.addEventListener("input", listenerInput);
     });
 
-    editaveis.forEach(el => {
+    editables.forEach(el => {
         el.removeEventListener("input", listenerEditable);
         el.addEventListener("input", listenerEditable);
     });
 
-    console.log(`Listeners adicionados: ${inputs.length} input/textarea e ${editaveis.length} contenteditable`);
+    console.log(`Listeners added: ${inputs.length} input/textarea and ${editables.length} contenteditable`);
 }
 
 function listenerInput(e) {
-    processarCampoTexto(e.target);
+    processTextField(e.target);
 }
 
 function listenerEditable(e) {
-    processarContentEditable(e.target);
+    processContentEditable(e.target);
 }
 
-adicionarListeners();
+addListeners();
 
-// Observa elementos adicionados dinamicamente e adiciona os listeners
+// Observe dynamically added elements and add listeners
 const observer = new MutationObserver(() => {
-    adicionarListeners();
+    addListeners();
 });
 observer.observe(document.body, { childList: true, subtree: true });
