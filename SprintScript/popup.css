@@ -1,69 +1,71 @@
 body {
-    font-family: sans-serif;
-    margin: 0;
-    padding: 10px;
-    width: 300px;
-    background: #f9f9f9;
-  }
-  
-  .container {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-  }
-  
-  h1 {
-    margin: 0;
-    font-size: 1.2rem;
-    color: #333;
-  }
-  
-  .form {
-    display: flex;
-    flex-direction: column;
-    gap: 5px;
-  }
-  
-  input {
-    padding: 6px;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-  }
-  
-  button {
-    padding: 8px;
-    background-color: #007bff;
-    color: white;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-  }
-  
-  button:hover {
-    background-color: #0056b3;
-  }
-  
-  #shortcutList {
-    list-style-type: none;
-    padding: 0;
-    margin-top: 10px;
-    max-height: 200px;
-    overflow-y: auto;
-  }
-  
-  #shortcutList li {
-    background: #ffffff;
-    padding: 8px;
-    border: 1px solid #ddd;
-    margin-bottom: 5px;
-    border-radius: 5px;
-    font-size: 0.9rem;
-  }
-  
-  #message {
-    display: none;
-    color: green;
-    font-size: 0.85rem;
-    margin-top: 5px;
-  }
-  
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  margin: 0;
+  padding: 0;
+  width: 320px;
+  background: #f5f7fa;
+}
+
+.header {
+  background-color: #007bff;
+  color: white;
+  display: flex;
+  align-items: center;
+  padding: 10px 15px;
+  border-bottom: 3px solid #0056b3;
+}
+
+.logo {
+  width: 24px;
+  height: 24px;
+  margin-right: 10px;
+}
+
+.title {
+  font-size: 1.1rem;
+  margin: 0;
+}
+
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 15px;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+input {
+  padding: 6px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+
+button {
+  padding: 8px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+button:hover {
+  background-color: #0056b3;
+}
+
+#shortcutList {
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+}
+
+#message {
+  color: green;
+  font-size: 0.9rem;
+  display: none;
+}
