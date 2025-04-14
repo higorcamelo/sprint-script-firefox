@@ -1,0 +1,15 @@
+{
+  "name": "sprint-script-firefox-ext",
+  "version": "1.0.0",
+  "description": "Este repositório contém o código-fonte da extensão ScriptSprint para o navegador Firefox.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "puppeteer": "^24.6.1"
+  }
+}

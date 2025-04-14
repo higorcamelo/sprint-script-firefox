@@ -1,16 +1,33 @@
 console.log("SprintScript ativo!");
 
-const substituicoes = {
-    "/linkedin": "https://www.linkedin.com/in/seu-perfil",
-    "/github": "https://github.com/seu-usuario"
-};
+// Variável para guardar os atalhos dinâmicos (chave: comando, valor: substituição)
+let substituicoes = {};
+
+// Carrega os atalhos salvos do storage
+function loadSubstituicoes(callback) {
+    chrome.storage.sync.get("shortcuts", (result) => {
+        substituicoes = result?.shortcuts || {};
+        console.log("Atalhos carregados:", substituicoes);
+        if (callback) callback();
+    });
+}
+
+// Chama o load inicial
+loadSubstituicoes();
+
+// Escuta mensagens para atualizar os atalhos dinamicamente
+chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+    if (message.action === "updateShortcuts") {
+        loadSubstituicoes();
+    }
+});
 
 // Cria (ou reutiliza) o elemento tooltip para confirmação
 let tooltip = document.getElementById("sprint-tooltip");
 if (!tooltip) {
     tooltip = document.createElement("div");
     tooltip.id = "sprint-tooltip";
-    // Estilos básicos do tooltip (você pode ajustar conforme desejar)
+    // Estilos básicos do tooltip (ajuste conforme preferir)
     tooltip.style.position = "absolute";
     tooltip.style.background = "#fff";
     tooltip.style.border = "1px solid #ccc";
@@ -27,10 +44,10 @@ if (!tooltip) {
  * Exibe o tooltip de confirmação perto do elemento.
  * @param {HTMLElement} elemento - O campo onde o atalho foi detectado.
  * @param {string} atalho - O atalho detectado (ex: "/linkedin").
- * @param {string} texto - O texto a ser substituído (ex: o link).
- * @param {number} posX - Posição horizontal para exibir o tooltip.
- * @param {number} posY - Posição vertical para exibir o tooltip.
- * @param {Function} confirmCallback - Função a executar se o usuário confirmar.
+ * @param {string} texto - O texto para substituição.
+ * @param {number} posX - Posição horizontal para o tooltip.
+ * @param {number} posY - Posição vertical para o tooltip.
+ * @param {Function} confirmCallback - Função executada se o usuário confirmar.
  */
 function mostrarTooltip(elemento, atalho, texto, posX, posY, confirmCallback) {
     tooltip.innerHTML = `
@@ -139,7 +156,7 @@ function adicionarListeners() {
     const editaveis = document.querySelectorAll("[contenteditable='true']");
 
     inputs.forEach(campo => {
-        // Remove qualquer listener antigo para evitar duplicações
+        // Remove listeners antigos para evitar duplicação
         campo.removeEventListener("input", listenerInput);
         campo.addEventListener("input", listenerInput);
     });
