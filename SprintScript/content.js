@@ -48,20 +48,51 @@ if (!tooltip) {
  * @param {Function} confirmCallback - Function executed if the user confirms.
  */
 function showTooltip(element, shortcut, text, posX, posY, confirmCallback) {
-    tooltip.innerHTML = `
-        Replace <b>${shortcut}</b> with <b>${text}</b>?
-        <button id="sprint-confirm">✔</button>
-        <button id="sprint-cancel">✖</button>
-    `;
+    // Limpar conteúdo antigo do tooltip
+    tooltip.textContent = ''; // Remover conteúdo anterior
+
+    // Substituir a construção do HTML com innerHTML por criar elementos de forma segura
+    const message = document.createElement('span');
+    message.textContent = `Replace `;
+    
+    const shortcutElement = document.createElement('b');
+    shortcutElement.textContent = shortcut;
+
+    const withText = document.createElement('span');
+    withText.textContent = ` with `;
+    
+    const textElement = document.createElement('b');
+    textElement.textContent = text;
+
+    const confirmButton = document.createElement('button');
+    confirmButton.id = 'sprint-confirm';
+    confirmButton.textContent = '✔';
+
+    const cancelButton = document.createElement('button');
+    cancelButton.id = 'sprint-cancel';
+    cancelButton.textContent = '✖';
+
+    // Adiciona os elementos criados ao tooltip
+    tooltip.appendChild(message);
+    tooltip.appendChild(shortcutElement);
+    tooltip.appendChild(withText);
+    tooltip.appendChild(textElement);
+    tooltip.appendChild(confirmButton);
+    tooltip.appendChild(cancelButton);
+
+    // Posicionar e exibir o tooltip
     tooltip.style.left = posX + "px";
     tooltip.style.top = posY + "px";
     tooltip.style.display = "block";
 
-    document.getElementById("sprint-confirm").onclick = function() {
+    // Ação ao clicar no botão de confirmação
+    confirmButton.onclick = function() {
         confirmCallback();
         tooltip.style.display = "none";
     };
-    document.getElementById("sprint-cancel").onclick = function() {
+
+    // Ação ao clicar no botão de cancelamento
+    cancelButton.onclick = function() {
         tooltip.style.display = "none";
     };
 }
