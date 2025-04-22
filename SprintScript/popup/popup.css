@@ -146,3 +146,44 @@ button:hover {
   padding-left: 5px; /* Adiciona um pequeno espaçamento ao lado do atalho */
   overflow-x: hidden; /* Previne o scroll horizontal */
 }
+
+textarea {
+  padding: 6px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  resize: vertical;
+  min-height: 60px;
+  font-family: inherit;
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+.tooltip-wrapper {
+  position: relative;
+  display: inline-block;
+}
+
+.tooltip-content {
+  visibility: hidden;
+  background-color: #333;
+  color: #fff;
+  text-align: left;
+  padding: 8px 10px;
+  border-radius: 8px;
+  white-space: pre-wrap;
+  max-width: 280px;
+  font-size: 0.85rem;
+  line-height: 1.3;
+  position: absolute;
+  z-index: 100;
+  bottom: 110%;
+  left: 0;
+  opacity: 0;
+  transition: opacity 0.2s ease-in-out;
+  box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
+}
+
+.tooltip-wrapper:hover .tooltip-content {
+  visibility: visible;
+  opacity: 1;
+}

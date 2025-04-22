@@ -29,13 +29,30 @@ if (!tooltip) {
     tooltip.style.position = "absolute";
     tooltip.style.background = "#fff";
     tooltip.style.border = "1px solid #ccc";
-    tooltip.style.padding = "6px 10px";
+    tooltip.style.padding = "10px 12px";
     tooltip.style.borderRadius = "8px";
     tooltip.style.boxShadow = "0px 2px 8px rgba(0,0,0,0.15)";
     tooltip.style.zIndex = 9999;
     tooltip.style.fontSize = "14px";
     tooltip.style.display = "none";
+    tooltip.style.maxWidth = "400px";
+    tooltip.style.wordWrap = "break-word";
+    tooltip.style.overflowWrap = "break-word";
+    tooltip.style.whiteSpace = "normal";
+    tooltip.style.lineHeight = "1.5";
     document.body.appendChild(tooltip);
+}
+
+/**
+ * Trunca o texto após X palavras, adicionando reticências.
+ * @param {string} text 
+ * @param {number} wordLimit 
+ * @returns {string}
+ */
+function truncateText(text, wordLimit = 20) {
+    const words = text.split(/\s+/);
+    if (words.length <= wordLimit) return text;
+    return words.slice(0, wordLimit).join(" ") + "...";
 }
 
 /**
@@ -62,7 +79,7 @@ function showTooltip(element, shortcut, text, posX, posY, confirmCallback) {
     withText.textContent = ` with `;
     
     const textElement = document.createElement('b');
-    textElement.textContent = text;
+    textElement.textContent = truncateText(text, 20); // Trunca o texto após 20 palavras
 
     const confirmButton = document.createElement('button');
     confirmButton.id = 'sprint-confirm';
