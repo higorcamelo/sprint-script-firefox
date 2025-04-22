@@ -1,0 +1,18 @@
+{
+    "shortcut_placeholder": "Digite seu atalho (ex: /web, /email)",
+    "replacement_placeholder": "Digite o texto de substituição",
+    "save_button": "Salvar",
+    "message_saved": "Atalho salvo com sucesso!",
+    "message_error": "Erro ao salvar: ",
+    "no_shortcuts": "Nenhum atalho salvo",
+    "confirm_delete": "Tem certeza de que deseja excluir este atalho?",
+    "delete_button": "×",
+    "cancel_delete": "Cancelar",
+    "delete_confirmation": "Sim",
+    "delete_success": "Atalho excluído",
+    "error_fill_fields": "Por favor, preencha ambos os campos!",
+    "tooltip_replace_with": "Substituir",
+    "tooltip_confirm": "✔",
+    "tooltip_cancel": "✖"
+  }
+  
