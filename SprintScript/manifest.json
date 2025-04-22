@@ -1,7 +1,7 @@
 {
   "manifest_version": 2,
-  "name": "SprintScript",
-  "version": "1.0",
+  "name": "SprintScript1.1",
+  "version": "1.1",
   "description": "Replace text shortcuts with full links and phrases, with user confirmation.",
   "permissions": [
     "storage",
@@ -15,7 +15,7 @@
     }
   ],
   "browser_action": {
-    "default_popup": "popup.html",
+    "default_popup": "/popup/popup.html",
     "default_icon": {
       "16": "images/ss_icon_16.png",
       "32": "images/ss_icon_32.png",

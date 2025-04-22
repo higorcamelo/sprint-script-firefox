@@ -1,9 +1,17 @@
+/* Resetando o box-sizing para garantir que o padding e a borda não aumentem a largura total */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
 body {
   font-family: sans-serif;
   margin: 0;
   padding: 10px;
   width: 300px;
   background: #f9f9f9;
+  overflow-x: hidden; /* Evita o scroll horizontal */
 }
 
 .container {
@@ -32,6 +40,8 @@ input {
   padding: 6px;
   border: 1px solid #ccc;
   border-radius: 5px;
+  width: 100%; /* Garante que o input ocupe toda a largura disponível */
+  overflow: hidden; /* Garante que o conteúdo não ultrapasse os limites */
 }
 
 button {
@@ -50,6 +60,7 @@ button:hover {
 #shortcutList {
   list-style-type: none;
   padding: 0;
+  margin: 0; /* Remove margens extras */
 }
 
 #shortcutList li {
@@ -59,8 +70,10 @@ button:hover {
   padding: 8px;
   border-radius: 5px;
   display: flex;
-  justify-content: space-between;
+  justify-content: space-between; /* Espaço entre atalho e texto */
   align-items: center;
+  width: 100%; /* Garante que o item da lista ocupe toda a largura disponível */
+  overflow: hidden; /* Previne o overflow do conteúdo */
 }
 
 #message {
@@ -118,4 +131,18 @@ button:hover {
 #cancelDelete {
   background-color: #6c757d;
   color: white;
+}
+
+.substitution {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3; 
+  line-clamp: 3; 
+  overflow: hidden;
+  text-overflow: ellipsis;
+  word-break: break-word;
+  white-space: pre-wrap;
+  flex: 1; /* Faz com que o texto ocupe o espaço restante na linha */
+  padding-left: 5px; /* Adiciona um pequeno espaçamento ao lado do atalho */
+  overflow-x: hidden; /* Previne o scroll horizontal */
 }

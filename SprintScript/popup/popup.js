@@ -62,7 +62,9 @@ function loadShortcuts() {
 
         Object.entries(shortcuts).forEach(([shortcut, text]) => {
             const li = document.createElement("li");
-            li.textContent = `${shortcut} → ${text}`;
+
+            // Adicionando a classe "substitution" ao texto da substituição
+            li.innerHTML = `<strong>${shortcut}</strong> → <span class="substitution">${text}</span>`;
 
             const deleteBtn = document.createElement("button");
             deleteBtn.textContent = "×";
