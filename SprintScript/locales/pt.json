@@ -13,6 +13,10 @@
     "error_fill_fields": "Por favor, preencha ambos os campos!",
     "tooltip_replace_with": "Substituir",
     "tooltip_confirm": "✔",
-    "tooltip_cancel": "✖"
+    "tooltip_cancel": "✖",
+    "replace_with": "Substituir ",
+    "with_text": " por ",
+    "confirm_button": "✔",
+    "cancel_button": "✖"
   }
   

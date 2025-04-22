@@ -1,35 +1,41 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>SprintScript</title>
-  <link rel="stylesheet" href="popup.css" />
+  <link rel="stylesheet" href="popup.css"/>
 </head>
 <body>
   <div class="container">
     <header>
-      <h1>SprintScript</h1>
+      <h1 data-i18n="header_title">SprintScript</h1>
     </header>
 
     <div class="form">
-      <input type="text" id="shortcut" placeholder="Enter shortcut (e.g. /linkedin)" />
-      <textarea id="replacement" placeholder="Replacement text"></textarea>
-      <button id="saveButton">Save</button>
+      <input type="text" id="shortcut"
+             placeholder=""
+             data-i18n="shortcut_placeholder" />
+
+      <textarea id="replacement"
+                placeholder=""
+                data-i18n="replacement_placeholder"></textarea>
+
+      <button id="saveButton" data-i18n="save_button"></button>
     </div>
 
     <ul id="shortcutList"></ul>
 
-    <div id="message">Shortcut saved successfully!</div>
+    <div id="message" data-i18n="message_saved"></div>
   </div>
 
-  <!-- Custom Delete Confirmation Modal -->
+  <!-- Modal de confirmação -->
   <div id="confirmModal" class="modal hidden">
     <div class="modal-content">
-      <p>Are you sure you want to delete this shortcut?</p>
+      <p data-i18n="confirm_delete"></p>
       <div class="modal-actions">
-        <button id="confirmDelete">Yes</button>
-        <button id="cancelDelete">Cancel</button>
+        <button id="confirmDelete" data-i18n="delete_confirmation"></button>
+        <button id="cancelDelete" data-i18n="cancel_delete"></button>
       </div>
     </div>
   </div>

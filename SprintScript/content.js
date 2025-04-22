@@ -1,6 +1,32 @@
 // Variable to store dynamic shortcuts (key: command, value: substitution)
 let substitutions = {};
 
+// A URL correta para os arquivos JSON
+const enURL = browser.runtime.getURL('locales/en-US.json');
+const ptURL = browser.runtime.getURL('locales/pt.json');
+
+// Função para carregar e imprimir os JSONs
+function loadAndPrintLocales() {
+    fetch(enURL)
+        .then(response => response.json())
+        .then(data => {
+            console.log('Conteúdo do en-US.json:', data);
+        })
+        .catch(error => {
+            console.error('Erro ao carregar o en-US.json:', error);
+        });
+    
+    fetch(ptURL)
+        .then(response => response.json())
+        .then(data => {
+            console.log('Conteúdo do pt.json:', data);
+        })
+        .catch(error => {
+            console.error('Erro ao carregar o pt.json:', error);
+        });
+}
+
+
 // Load saved shortcuts from storage
 function loadSubstitutions(callback) {
     chrome.storage.sync.get("shortcuts", (result) => {
@@ -18,6 +44,45 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     if (message.action === "updateShortcuts") {
         loadSubstitutions();
     }
+});
+
+// Function to detect the language from the browser
+function detectLanguage() {
+  const nav = navigator.language || navigator.userLanguage; // Example: "pt-BR", "en-US"
+  return nav.toLowerCase().startsWith('pt') ? 'pt' : 'en-US';
+}
+
+// Load translation JSON
+async function loadLocale(lang) {
+  const url = chrome.runtime.getURL(LOCALES[lang] || LOCALES.en);
+  const res = await fetch(url);
+  if (!res.ok) throw new Error('Could not load locale ' + lang);
+  return await res.json();
+}
+
+// Apply translations dynamically
+function applyTranslations(dict) {
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const key = el.getAttribute('data-i18n');
+    const txt = dict[key];
+    if (!txt) return;
+    if (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA') {
+      el.placeholder = txt;
+    } else {
+      el.textContent = txt;
+    }
+  });
+}
+
+// Initialize translations and update UI
+document.addEventListener('DOMContentLoaded', async () => {
+  try {
+    const lang = detectLanguage();
+    i18n = await loadLocale(lang);
+    applyTranslations(i18n);
+  } catch (e) {
+    console.error('i18n load error:', e);
+  }
 });
 
 // Create (or reuse) the tooltip element for confirmation
@@ -70,24 +135,26 @@ function showTooltip(element, shortcut, text, posX, posY, confirmCallback) {
 
     // Substituir a construção do HTML com innerHTML por criar elementos de forma segura
     const message = document.createElement('span');
-    message.textContent = `Replace `;
+    // A chave do JSON é usada diretamente, e se não houver tradução, o fallback é o texto padrão.
+    message.textContent = i18n.replace_with || "Não tá "; 
     
     const shortcutElement = document.createElement('b');
     shortcutElement.textContent = shortcut;
 
     const withText = document.createElement('span');
-    withText.textContent = ` with `;
-    
+    // Usamos diretamente a tradução do JSON, se disponível, caso contrário, utilizamos o fallback.
+    withText.textContent = i18n.with_text || "Funcionando"; 
+
     const textElement = document.createElement('b');
     textElement.textContent = truncateText(text, 20); // Trunca o texto após 20 palavras
 
     const confirmButton = document.createElement('button');
     confirmButton.id = 'sprint-confirm';
-    confirmButton.textContent = '✔';
+    confirmButton.textContent = i18n.confirm_button || "✔"; // Utilizando a tradução diretamente
 
     const cancelButton = document.createElement('button');
     cancelButton.id = 'sprint-cancel';
-    cancelButton.textContent = '✖';
+    cancelButton.textContent = i18n.cancel_button || "✖"; // Utilizando a tradução diretamente
 
     // Adiciona os elementos criados ao tooltip
     tooltip.appendChild(message);
@@ -208,25 +275,22 @@ function addListeners() {
     });
 
     editables.forEach(el => {
-        el.removeEventListener("input", listenerEditable);
-        el.addEventListener("input", listenerEditable);
+        // Remove old listeners to avoid duplication
+        el.removeEventListener("input", listenerContentEditable);
+        el.addEventListener("input", listenerContentEditable);
     });
-
-    console.log(`Listeners added: ${inputs.length} input/textarea and ${editables.length} contenteditable`);
 }
 
-function listenerInput(e) {
-    processTextField(e.target);
+// Add listeners to fields dynamically
+function listenerInput(event) {
+    processTextField(event.target);
 }
 
-function listenerEditable(e) {
-    processContentEditable(e.target);
+function listenerContentEditable(event) {
+    processContentEditable(event.target);
 }
 
+// Initialize listeners after the page is loaded
 addListeners();
+loadAndPrintLocales();
 
-// Observe dynamically added elements and add listeners
-const observer = new MutationObserver(() => {
-    addListeners();
-});
-observer.observe(document.body, { childList: true, subtree: true });
