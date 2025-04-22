@@ -1,27 +1,26 @@
-// 1) variáveis de escopo
-let i18n = {};   // vai guardar as traduções
+let i18n = {};   // Vai guardar as traduções
 const LOCALES = {
-  en: 'locales/en-US.json',   // sem barra inicial
-  pt: 'locales/pt.json'
+  en: '_locales/en/messages.json',  // Caminho correto para o arquivo de tradução em inglês
+  pt: '_locales/pt/messages.json'  // Caminho correto para o arquivo de tradução em português
 };
 
-// 2) detecta o idioma do navegador, retornando "pt" ou "en"
+// Detecta o idioma do navegador, retornando "pt" ou "en"
 function detectLanguage() {
-  const nav = navigator.language || navigator.userLanguage; // ex: "pt-BR", "en-US"
+  const nav = navigator.language || navigator.userLanguage;  // ex: "pt-BR", "en-US"
   const lang = nav.toLowerCase().startsWith('pt') ? 'pt' : 'en';  // Definindo 'lang'
   console.log("Idioma detectado:", lang);  // Mostrando o idioma no console
   return lang;
 }
 
-// 3) carrega o JSON de traduções dentro da extensão
+// Carrega o JSON de traduções dentro da extensão
 async function loadLocale(lang) {
-  const url = chrome.runtime.getURL(LOCALES[lang] || LOCALES.en);
+  const url = chrome.runtime.getURL(LOCALES[lang] || LOCALES.en);  // Corrigido o caminho
   const res = await fetch(url);
   if (!res.ok) throw new Error('Could not load locale ' + lang);
   return await res.json();
 }
 
-// 4) aplica as traduções em todo elemento que tenha data-i18n="CHAVE"
+// Aplica as traduções em todo elemento que tenha data-i18n="CHAVE"
 function applyTranslations(dict) {
   document.querySelectorAll('[data-i18n]').forEach(el => {
     const key = el.getAttribute('data-i18n');
@@ -35,7 +34,7 @@ function applyTranslations(dict) {
   });
 }
 
-// 5) inicializa tudo após o DOM estar pronto
+// Inicializa tudo após o DOM estar pronto
 document.addEventListener('DOMContentLoaded', async () => {
   try {
     const lang = detectLanguage();  // Detectando o idioma
@@ -45,7 +44,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     console.error('i18n load error:', e);
   }
 
-  // agora sua lógica original:
   loadShortcuts();
   document.getElementById("saveButton")
           .addEventListener("click", saveShortcut);

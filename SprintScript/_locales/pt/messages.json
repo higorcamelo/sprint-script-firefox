@@ -1,0 +1,78 @@
+{
+  "shortcut_placeholder": {
+    "message": "Digite seu atalho (ex: /web, /email)",
+    "description": "Placeholder para o campo de atalho"
+  },
+  "replacement_placeholder": {
+    "message": "Digite o texto de substituição",
+    "description": "Placeholder para o campo de texto de substituição"
+  },
+  "save_button": {
+    "message": "Salvar",
+    "description": "Texto do botão de salvar"
+  },
+  "message_saved": {
+    "message": "Atalho salvo com sucesso!",
+    "description": "Mensagem exibida quando um atalho é salvo"
+  },
+  "message_error": {
+    "message": "Erro ao salvar: ",
+    "description": "Mensagem exibida quando ocorre um erro ao salvar"
+  },
+  "no_shortcuts": {
+    "message": "Nenhum atalho salvo",
+    "description": "Mensagem exibida quando não há atalhos salvos"
+  },
+  "confirm_delete": {
+    "message": "Tem certeza de que deseja excluir este atalho?",
+    "description": "Mensagem de confirmação para excluir um atalho"
+  },
+  "delete_button": {
+    "message": "×",
+    "description": "Texto do botão de excluir"
+  },
+  "cancel_delete": {
+    "message": "Cancelar",
+    "description": "Texto do botão de cancelar exclusão"
+  },
+  "delete_confirmation": {
+    "message": "Sim",
+    "description": "Texto para confirmar a exclusão"
+  },
+  "delete_success": {
+    "message": "Atalho excluído",
+    "description": "Mensagem exibida quando um atalho é excluído"
+  },
+  "error_fill_fields": {
+    "message": "Por favor, preencha ambos os campos!",
+    "description": "Mensagem exibida quando os campos de entrada não estão preenchidos"
+  },
+  "tooltip_replace_with": {
+    "message": "Substituir",
+    "description": "Texto exibido no tooltip antes do atalho"
+  },
+  "tooltip_confirm": {
+    "message": "✔",
+    "description": "Texto exibido para o botão de confirmar no tooltip"
+  },
+  "tooltip_cancel": {
+    "message": "✖",
+    "description": "Texto exibido para o botão de cancelar no tooltip"
+  },
+  "replace_with": {
+    "message": "Substituir ",
+    "description": "Texto indicando substituição no tooltip"
+  },
+  "with_text": {
+    "message": " por ",
+    "description": "Texto indicando 'por' entre a substituição e o atalho"
+  },
+  "confirm_button": {
+    "message": "✔",
+    "description": "Texto do botão de confirmação"
+  },
+  "cancel_button": {
+    "message": "✖",
+    "description": "Texto do botão de cancelamento"
+  }
+}

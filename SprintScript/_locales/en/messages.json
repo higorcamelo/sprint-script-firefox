@@ -1,0 +1,78 @@
+{
+  "shortcut_placeholder": {
+    "message": "Enter your shortcut (e.g., /web, /email)",
+    "description": "Placeholder for shortcut input"
+  },
+  "replacement_placeholder": {
+    "message": "Enter the replacement text",
+    "description": "Placeholder for replacement text input"
+  },
+  "save_button": {
+    "message": "Save",
+    "description": "Text for the save button"
+  },
+  "message_saved": {
+    "message": "Shortcut saved successfully!",
+    "description": "Message shown when a shortcut is saved"
+  },
+  "message_error": {
+    "message": "Error saving: ",
+    "description": "Message shown when there is an error saving"
+  },
+  "no_shortcuts": {
+    "message": "No shortcuts saved",
+    "description": "Message shown when there are no saved shortcuts"
+  },
+  "confirm_delete": {
+    "message": "Are you sure you want to delete this shortcut?",
+    "description": "Confirmation message for deleting a shortcut"
+  },
+  "delete_button": {
+    "message": "×",
+    "description": "Text for the delete button"
+  },
+  "cancel_delete": {
+    "message": "Cancel",
+    "description": "Text for the cancel delete button"
+  },
+  "delete_confirmation": {
+    "message": "Yes",
+    "description": "Text for confirming delete"
+  },
+  "delete_success": {
+    "message": "Shortcut deleted",
+    "description": "Message shown when a shortcut is deleted"
+  },
+  "error_fill_fields": {
+    "message": "Please fill in both fields!",
+    "description": "Message shown when input fields are not filled"
+  },
+  "tooltip_replace_with": {
+    "message": "Replace",
+    "description": "Text shown in the tooltip before shortcut"
+  },
+  "tooltip_confirm": {
+    "message": "✔",
+    "description": "Text shown for the confirm button in the tooltip"
+  },
+  "tooltip_cancel": {
+    "message": "✖",
+    "description": "Text shown for the cancel button in the tooltip"
+  },
+  "replace_with": {
+    "message": "Replace ",
+    "description": "Text indicating replacement in the tooltip"
+  },
+  "with_text": {
+    "message": " with ",
+    "description": "Text indicating 'with' between replacement and shortcut"
+  },
+  "confirm_button": {
+    "message": "✔",
+    "description": "Confirm button text"
+  },
+  "cancel_button": {
+    "message": "✖",
+    "description": "Cancel button text"
+  }
+}

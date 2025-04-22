@@ -1,31 +1,46 @@
 // Variable to store dynamic shortcuts (key: command, value: substitution)
 let substitutions = {};
 
-// A URL correta para os arquivos JSON
-const enURL = browser.runtime.getURL('locales/en-US.json');
-const ptURL = browser.runtime.getURL('locales/pt.json');
-
-// Função para carregar e imprimir os JSONs
-function loadAndPrintLocales() {
-    fetch(enURL)
-        .then(response => response.json())
-        .then(data => {
-            console.log('Conteúdo do en-US.json:', data);
-        })
-        .catch(error => {
-            console.error('Erro ao carregar o en-US.json:', error);
-        });
-    
-    fetch(ptURL)
-        .then(response => response.json())
-        .then(data => {
-            console.log('Conteúdo do pt.json:', data);
-        })
-        .catch(error => {
-            console.error('Erro ao carregar o pt.json:', error);
-        });
-}
-
+const LOCALES = {
+    en: 'locales/en-US.json',
+    pt: 'locales/pt.json'
+  };
+  
+  let i18n = {};
+  let t = (k) => k;  // fallback até carregar traduções
+  
+  function detectLanguage() {
+    const nav = navigator.language || navigator.userLanguage;
+    return nav.toLowerCase().startsWith('pt') ? 'pt' : 'en';
+  }
+  
+  async function loadLocale(lang) {
+    const url = chrome.runtime.getURL(LOCALES[lang] || LOCALES.en);
+    const res = await fetch(url);
+    if (!res.ok) throw new Error('Could not load locale ' + lang);
+    return await res.json();
+  }
+  
+  function createTranslator(dict) {
+    return function (key, replacements = {}) {
+      let txt = dict[key] || key;
+      for (const [k, v] of Object.entries(replacements)) {
+        txt = txt.replace(`__${k}__`, v);
+      }
+      return txt;
+    };
+  }
+  
+  // Carregar traduções ao iniciar
+  (async () => {
+    try {
+      const lang = detectLanguage();
+      i18n = await loadLocale(lang);
+      t = createTranslator(i18n);
+    } catch (e) {
+      console.error('i18n load error in content.js:', e);
+    }
+  })();
 
 // Load saved shortcuts from storage
 function loadSubstitutions(callback) {
@@ -44,45 +59,6 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     if (message.action === "updateShortcuts") {
         loadSubstitutions();
     }
-});
-
-// Function to detect the language from the browser
-function detectLanguage() {
-  const nav = navigator.language || navigator.userLanguage; // Example: "pt-BR", "en-US"
-  return nav.toLowerCase().startsWith('pt') ? 'pt' : 'en-US';
-}
-
-// Load translation JSON
-async function loadLocale(lang) {
-  const url = chrome.runtime.getURL(LOCALES[lang] || LOCALES.en);
-  const res = await fetch(url);
-  if (!res.ok) throw new Error('Could not load locale ' + lang);
-  return await res.json();
-}
-
-// Apply translations dynamically
-function applyTranslations(dict) {
-  document.querySelectorAll('[data-i18n]').forEach(el => {
-    const key = el.getAttribute('data-i18n');
-    const txt = dict[key];
-    if (!txt) return;
-    if (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA') {
-      el.placeholder = txt;
-    } else {
-      el.textContent = txt;
-    }
-  });
-}
-
-// Initialize translations and update UI
-document.addEventListener('DOMContentLoaded', async () => {
-  try {
-    const lang = detectLanguage();
-    i18n = await loadLocale(lang);
-    applyTranslations(i18n);
-  } catch (e) {
-    console.error('i18n load error:', e);
-  }
 });
 
 // Create (or reuse) the tooltip element for confirmation
@@ -130,33 +106,35 @@ function truncateText(text, wordLimit = 20) {
  * @param {Function} confirmCallback - Function executed if the user confirms.
  */
 function showTooltip(element, shortcut, text, posX, posY, confirmCallback) {
-    // Limpar conteúdo antigo do tooltip
-    tooltip.textContent = ''; // Remover conteúdo anterior
+    tooltip.textContent = ''; // Limpar conteúdo antigo
 
-    // Substituir a construção do HTML com innerHTML por criar elementos de forma segura
+    console.log("replace_with:", chrome.i18n.getMessage("replace_with"));
+    console.log("with_text:", chrome.i18n.getMessage("with_text"));
+
+    // Obter mensagens traduzidas
+    const replaceWith = chrome.i18n.getMessage("replace_with"); // "Substituir "
+    const withTextMessage = chrome.i18n.getMessage("with_text"); // " por "
+
     const message = document.createElement('span');
-    // A chave do JSON é usada diretamente, e se não houver tradução, o fallback é o texto padrão.
-    message.textContent = i18n.replace_with || "Não tá "; 
-    
+    message.textContent = replaceWith;  // "Substituir "
+
     const shortcutElement = document.createElement('b');
     shortcutElement.textContent = shortcut;
 
     const withText = document.createElement('span');
-    // Usamos diretamente a tradução do JSON, se disponível, caso contrário, utilizamos o fallback.
-    withText.textContent = i18n.with_text || "Funcionando"; 
+    withText.textContent = withTextMessage;  // " por "
 
     const textElement = document.createElement('b');
-    textElement.textContent = truncateText(text, 20); // Trunca o texto após 20 palavras
+    textElement.textContent = truncateText(text, 20);
 
     const confirmButton = document.createElement('button');
     confirmButton.id = 'sprint-confirm';
-    confirmButton.textContent = i18n.confirm_button || "✔"; // Utilizando a tradução diretamente
+    confirmButton.textContent = chrome.i18n.getMessage("tooltip_confirm") || '✔'; // '✔' se não houver tradução
 
     const cancelButton = document.createElement('button');
     cancelButton.id = 'sprint-cancel';
-    cancelButton.textContent = i18n.cancel_button || "✖"; // Utilizando a tradução diretamente
+    cancelButton.textContent = chrome.i18n.getMessage("tooltip_cancel") || '✖'; // '✖' se não houver tradução
 
-    // Adiciona os elementos criados ao tooltip
     tooltip.appendChild(message);
     tooltip.appendChild(shortcutElement);
     tooltip.appendChild(withText);
@@ -164,19 +142,16 @@ function showTooltip(element, shortcut, text, posX, posY, confirmCallback) {
     tooltip.appendChild(confirmButton);
     tooltip.appendChild(cancelButton);
 
-    // Posicionar e exibir o tooltip
     tooltip.style.left = posX + "px";
     tooltip.style.top = posY + "px";
     tooltip.style.display = "block";
 
-    // Ação ao clicar no botão de confirmação
-    confirmButton.onclick = function() {
+    confirmButton.onclick = function () {
         confirmCallback();
         tooltip.style.display = "none";
     };
 
-    // Ação ao clicar no botão de cancelamento
-    cancelButton.onclick = function() {
+    cancelButton.onclick = function () {
         tooltip.style.display = "none";
     };
 }
@@ -275,22 +250,25 @@ function addListeners() {
     });
 
     editables.forEach(el => {
-        // Remove old listeners to avoid duplication
-        el.removeEventListener("input", listenerContentEditable);
-        el.addEventListener("input", listenerContentEditable);
+        el.removeEventListener("input", listenerEditable);
+        el.addEventListener("input", listenerEditable);
     });
+
+    console.log(`Listeners added: ${inputs.length} input/textarea and ${editables.length} contenteditable`);
 }
 
-// Add listeners to fields dynamically
-function listenerInput(event) {
-    processTextField(event.target);
+function listenerInput(e) {
+    processTextField(e.target);
 }
 
-function listenerContentEditable(event) {
-    processContentEditable(event.target);
+function listenerEditable(e) {
+    processContentEditable(e.target);
 }
 
-// Initialize listeners after the page is loaded
 addListeners();
-loadAndPrintLocales();
 
+// Observe dynamically added elements and add listeners
+const observer = new MutationObserver(() => {
+    addListeners();
+});
+observer.observe(document.body, { childList: true, subtree: true });
