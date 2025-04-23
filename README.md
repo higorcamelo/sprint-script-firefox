@@ -2,6 +2,11 @@
 
 [![Firefox](https://img.shields.io/badge/Firefox-FF7139?style=for-the-badge&logo=Firefox-Browser&logoColor=white)](https://addons.mozilla.org/pt-BR/firefox/addon/sprintscript/)
 
+Este é o README principal para a versão em português da extensão **ScriptSprint**. Se preferir consultar o README em inglês, clique na bandeira abaixo:
+
+##### 🇬🇧 [English version of this README](./README.en.md)
+---
+
 **ScriptSprint** é uma extensão para Firefox que permite a substituição automática de atalhos de texto personalizados por frases completas, diretamente em campos de texto e áreas editáveis. Projetada para acelerar a escrita e eliminar tarefas repetitivas, a extensão oferece controle e flexibilidade ao usuário final.
 
 ---
