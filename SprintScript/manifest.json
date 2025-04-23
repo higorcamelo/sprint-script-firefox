@@ -1,6 +1,6 @@
 {
   "manifest_version": 2,
-  "name": "SprintScript1.1",
+  "name": "SprintScript",
   "version": "1.1",
   "description": "Replace text shortcuts with full links and phrases, with user confirmation.",
   "permissions": [
