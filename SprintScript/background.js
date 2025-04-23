@@ -8,8 +8,6 @@ chrome.runtime.onInstalled.addListener(() => {
 
     // Não precisamos fazer o fetch manualmente; o chrome.i18n lida com isso
     // Agora você pode usar as mensagens diretamente da API chrome.i18n
-    console.log('Idioma detectado:', lang);
-
     console.log('Traduções carregadas com sucesso');
   } catch (err) {
     console.error('Erro ao carregar traduções:', err);

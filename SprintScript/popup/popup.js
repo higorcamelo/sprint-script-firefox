@@ -7,7 +7,6 @@ const LOCALES = {
 function detectLanguage() {
   const nav = navigator.language || navigator.userLanguage;
   const lang = nav.toLowerCase().startsWith('pt') ? 'pt' : 'en';
-  console.log("Idioma detectado:", lang);
   return lang;
 }
 

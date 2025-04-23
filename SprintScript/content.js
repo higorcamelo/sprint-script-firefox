@@ -209,7 +209,6 @@ function replaceInContentEditable(el, shortcut, text) {
     if (!value) return;
     if (value.includes(shortcut)) {
         const newValue = value.replaceAll(shortcut, text);
-        console.log(`Replacing ${shortcut} with ${text} in contenteditable`);
         el.innerText = newValue;
         el.dispatchEvent(new Event("input", { bubbles: true }));
     }
@@ -257,8 +256,6 @@ function addListeners() {
         el.removeEventListener("input", listenerEditable);
         el.addEventListener("input", listenerEditable);
     });
-
-    console.log(`Listeners added: ${inputs.length} input/textarea and ${editables.length} contenteditable`);
 }
 
 function listenerInput(e) {
