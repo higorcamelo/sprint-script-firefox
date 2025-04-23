@@ -16,9 +16,17 @@ const LOCALES = {
   
   async function loadLocale(lang) {
     const url = chrome.runtime.getURL(LOCALES[lang] || LOCALES.en);
-    const res = await fetch(url);
-    if (!res.ok) throw new Error('Could not load locale ' + lang);
-    return await res.json();
+    try {
+      const res = await fetch(url);
+      if (!res.ok) throw new Error(`Could not load locale ${lang}: ${res.statusText}`);
+      return await res.json();
+    } catch (e) {
+      if (lang !== "en") {
+        console.warn(`Failed to load ${lang}, trying 'en' as fallback.`);
+        return loadLocale("en");
+      }
+      throw e;
+    }
   }
   
   function createTranslator(dict) {
@@ -32,7 +40,7 @@ const LOCALES = {
   }
   
   // Carregar traduções ao iniciar
-  (async () => {
+  setTimeout(async () => {
     try {
       const lang = detectLanguage();
       i18n = await loadLocale(lang);
@@ -40,7 +48,7 @@ const LOCALES = {
     } catch (e) {
       console.error('i18n load error in content.js:', e);
     }
-  })();
+  }, 10);
 
 // Load saved shortcuts from storage
 function loadSubstitutions(callback) {
@@ -55,7 +63,7 @@ function loadSubstitutions(callback) {
 loadSubstitutions();
 
 // Listen for messages to update shortcuts dynamically
-chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+chrome.runtime.onMessage.addListener((message, _sender, _sendResponse) => {
     if (message.action === "updateShortcuts") {
         loadSubstitutions();
     }
@@ -77,7 +85,7 @@ if (!tooltip) {
     tooltip.style.fontSize = "14px";
     tooltip.style.display = "none";
     tooltip.style.maxWidth = "400px";
-    tooltip.style.wordWrap = "break-word";
+    tooltip.style.overflowWrap = "break-word";
     tooltip.style.overflowWrap = "break-word";
     tooltip.style.whiteSpace = "normal";
     tooltip.style.lineHeight = "1.5";
@@ -105,18 +113,15 @@ function truncateText(text, wordLimit = 20) {
  * @param {number} posY - Vertical position for the tooltip.
  * @param {Function} confirmCallback - Function executed if the user confirms.
  */
-function showTooltip(element, shortcut, text, posX, posY, confirmCallback) {
+function showTooltip(_element, shortcut, text, posX, posY, confirmCallback) {
     tooltip.textContent = ''; // Limpar conteúdo antigo
 
-    console.log("replace_with:", chrome.i18n.getMessage("replace_with"));
-    console.log("with_text:", chrome.i18n.getMessage("with_text"));
-
     // Obter mensagens traduzidas
-    const replaceWith = chrome.i18n.getMessage("replace_with"); // "Substituir "
-    const withTextMessage = chrome.i18n.getMessage("with_text"); // " por "
+    const replaceWith = chrome.i18n.getMessage("replace_with"); 
+    const withTextMessage = chrome.i18n.getMessage("with_text");
 
     const message = document.createElement('span');
-    message.textContent = replaceWith;  // "Substituir "
+    message.textContent = replaceWith;
 
     const shortcutElement = document.createElement('b');
     shortcutElement.textContent = shortcut;
@@ -188,7 +193,6 @@ function replaceInTextField(field, shortcut, text) {
     if (!value) return;
     if (value.includes(shortcut)) {
         const newValue = value.replaceAll(shortcut, text);
-        console.log(`Replacing ${shortcut} with ${text} in input`);
         field.value = newValue;
         field.dispatchEvent(new Event("input", { bubbles: true }));
     }

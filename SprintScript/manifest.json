@@ -37,5 +37,8 @@
       "strict_min_version": "79.0"
     }
   },
-  "default_locale": "en"
+  "default_locale": "en",
+  "web_accessible_resources": [
+  "_locales/*/messages.json"
+]
 }

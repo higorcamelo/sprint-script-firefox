@@ -1,45 +1,46 @@
 let i18n = {};   // Vai guardar as traduções
 const LOCALES = {
-  en: '_locales/en/messages.json',  // Caminho correto para o arquivo de tradução em inglês
-  pt: '_locales/pt/messages.json'  // Caminho correto para o arquivo de tradução em português
+  en: '_locales/en/messages.json',
+  pt: '_locales/pt/messages.json'
 };
 
-// Detecta o idioma do navegador, retornando "pt" ou "en"
 function detectLanguage() {
-  const nav = navigator.language || navigator.userLanguage;  // ex: "pt-BR", "en-US"
-  const lang = nav.toLowerCase().startsWith('pt') ? 'pt' : 'en';  // Definindo 'lang'
-  console.log("Idioma detectado:", lang);  // Mostrando o idioma no console
+  const nav = navigator.language || navigator.userLanguage;
+  const lang = nav.toLowerCase().startsWith('pt') ? 'pt' : 'en';
+  console.log("Idioma detectado:", lang);
   return lang;
 }
 
-// Carrega o JSON de traduções dentro da extensão
 async function loadLocale(lang) {
-  const url = chrome.runtime.getURL(LOCALES[lang] || LOCALES.en);  // Corrigido o caminho
+  const url = chrome.runtime.getURL(LOCALES[lang] || LOCALES.en);
   const res = await fetch(url);
   if (!res.ok) throw new Error('Could not load locale ' + lang);
   return await res.json();
 }
 
-// Aplica as traduções em todo elemento que tenha data-i18n="CHAVE"
 function applyTranslations(dict) {
   document.querySelectorAll('[data-i18n]').forEach(el => {
     const key = el.getAttribute('data-i18n');
     const txt = dict[key];
     if (!txt) return;
     if (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA') {
-      el.placeholder = txt;
+      el.placeholder = txt.message || txt;
     } else {
-      el.textContent = txt;
+      el.textContent = txt.message || txt;
     }
   });
 }
 
-// Inicializa tudo após o DOM estar pronto
+function t(key) {
+  const val = i18n[key];
+  return typeof val === 'string' ? val : val?.message || '';
+}
+
 document.addEventListener('DOMContentLoaded', async () => {
   try {
-    const lang = detectLanguage();  // Detectando o idioma
-    i18n = await loadLocale(lang);  // Carregando as traduções para o idioma detectado
-    applyTranslations(i18n);  // Aplicando as traduções
+    const lang = detectLanguage();
+    i18n = await loadLocale(lang);
+    applyTranslations(i18n);
   } catch (e) {
     console.error('i18n load error:', e);
   }
@@ -54,7 +55,7 @@ function saveShortcut() {
   const replacement = document.getElementById("replacement").value.trim();
 
   if (!shortcut || !replacement) {
-    showMessage(i18n.error_fill_fields, "error");
+    showMessage(t("error_fill_fields"), "error");
     return;
   }
 
@@ -76,10 +77,10 @@ function saveShortcut() {
 function saveAndRefresh(shortcuts, shortcut) {
   chrome.storage.sync.set({ shortcuts }, () => {
     if (chrome.runtime.lastError) {
-      showMessage(i18n.message_error + chrome.runtime.lastError.message, "error");
+      showMessage(t("message_error") + chrome.runtime.lastError.message, "error");
       return;
     }
-    showMessage(i18n.message_saved, "success");
+    showMessage(t("message_saved"), "success");
     document.getElementById("shortcut").value    = "";
     document.getElementById("replacement").value = "";
     loadShortcuts();
@@ -104,25 +105,24 @@ function loadShortcuts() {
     if (Object.keys(shortcuts).length === 0) {
       const li = document.createElement("li");
       li.className = "empty";
-      li.textContent = i18n.no_shortcuts;
+      li.textContent = t("no_shortcuts");
       list.appendChild(li);
       return;
     }
 
     Object.entries(shortcuts).forEach(([sc, txt]) => {
       const li = document.createElement("li");
-      // atalho → texto
       li.innerHTML = `<strong>${sc}</strong> → <span class="substitution">${txt}</span>`;
 
       const deleteBtn = document.createElement("button");
-      deleteBtn.textContent = i18n.delete_button;
+      deleteBtn.textContent = t("delete_button");
       deleteBtn.classList.add("delete-btn");
 
       deleteBtn.addEventListener("click", () => {
         openConfirmModal(() => {
           delete shortcuts[sc];
           chrome.storage.sync.set({ shortcuts }, () => {
-            showMessage(i18n.delete_success, "success");
+            showMessage(t("delete_success"), "success");
             loadShortcuts();
           });
         });
@@ -144,7 +144,6 @@ function showMessage(message, type) {
   }, 2500);
 }
 
-// Modal de confirmação
 function openConfirmModal(onConfirm) {
   const modal      = document.getElementById("confirmModal");
   const confirmBtn = document.getElementById("confirmDelete");
