@@ -1,62 +1,68 @@
-# Projeto ScriptSprint - README
+# 🧩 ScriptSprint — Extensão para Firefox
 
-Este repositório contém o código-fonte da extensão **ScriptSprint** para o navegador Firefox.
+[![Firefox](https://img.shields.io/badge/Firefox-FF7139?style=for-the-badge&logo=Firefox-Browser&logoColor=white)](https://addons.mozilla.org/pt-BR/firefox/addon/sprintscript/)
 
-## Descrição do Projeto
+Este é o README principal para a versão em português da extensão **ScriptSprint**. Se preferir consultar o README em inglês, clique na bandeira abaixo:
 
-O **ScriptSprint** é uma extensão para o navegador Firefox projetada para automatizar a inserção de texto e facilitar a navegação em campos de texto, como formulários e editores, substituindo atalhos definidos pelo usuário por frases completas ou comandos. A extensão permite otimizar tarefas repetitivas, melhorar a eficiência e proporcionar uma experiência de navegação mais fluída e personalizada.
+##### 🇬🇧 [English version of this README](./README.en.md)
+---
 
-## Funcionalidades Atuais
+**ScriptSprint** é uma extensão para Firefox que permite a substituição automática de atalhos de texto personalizados por frases completas, diretamente em campos de texto e áreas editáveis. Projetada para acelerar a escrita e eliminar tarefas repetitivas, a extensão oferece controle e flexibilidade ao usuário final.
 
-- **Criação de Atalhos Personalizados**: Os usuários podem definir seus próprios atalhos de texto, associando um comando curto a uma frase ou comando completo.
-- **Confirmação de Substituição**: Quando um atalho é detectado, a extensão solicita uma confirmação antes de substituir o texto, garantindo o controle sobre o processo.
-- **Interface de Gerenciamento Simples**: Interface de configuração intuitiva para adicionar, editar e remover atalhos, permitindo total personalização.
-- **Suporte a Campos de Texto e Editáveis**: Funciona em campos `input`, `textarea` e elementos com `contenteditable`, como editores de texto.
-- **Armazenamento Local**: Os atalhos são armazenados no armazenamento local do navegador, sem necessidade de servidores externos.
+---
 
-## Funcionalidades Planejadas para Versões Futuras
+## ✨ Visão Geral
 
-- **Sincronização de Atalhos**: Implementação de sincronização de atalhos entre diferentes dispositivos através de uma conta de usuário, permitindo usar os mesmos atalhos em qualquer lugar.
-- **Suporte a Múltiplos Idiomas**: Adição de suporte para diferentes idiomas, permitindo que a extensão seja utilizada globalmente.
-- **Filtros de Contexto**: Implementação de filtros que permitam definir os atalhos dependendo do tipo de campo ou da página em que o atalho será ativado, garantindo maior flexibilidade.
-- **Atalhos Condicionais**: Suporte a atalhos condicionais baseados no conteúdo ou em ações específicas da página, como substituir o texto apenas se um campo de formulário estiver vazio ou se uma página de login estiver aberta.
-- **Visualização e Edição de Atalhos em Tempo Real**: Interface aprimorada para visualizar todos os atalhos criados, com a possibilidade de editar ou excluir atalhos diretamente da interface.
-- **Testes Automatizados e de Estresse**: Implementação de testes para validar a funcionalidade da extensão e garantir que ela seja robusta em diferentes cenários de uso (incluindo situações de sobrecarga de atalhos).
-- **Análises de Uso**: Coleta de dados de uso (com o devido consentimento) para entender como os usuários estão interagindo com a extensão e quais funcionalidades mais estão utilizando.
+ScriptSprint é ideal para quem trabalha com preenchimento de formulários, suporte, desenvolvimento, criação de conteúdo ou qualquer tarefa que envolva repetição de frases. O usuário define um atalho e, ao digitá-lo, a extensão sugere a substituição automática com confirmação — garantindo precisão e controle.
 
-## Estrutura do Projeto
+---
 
-- **popup.html**: Arquivo HTML responsável pela interface pop-up da extensão, onde o usuário pode criar e gerenciar seus atalhos personalizados.
-- **popup.css**: Arquivo CSS para estilizar a interface pop-up.
-- **popup.js**: Script JavaScript que controla a lógica de exibição e interação na interface pop-up.
-- **content.js**: Script que detecta e substitui os atalhos nos campos de texto das páginas web. Gerencia a lógica de substituição de texto e exibição de confirmações.
-- **background.js**: Arquivo JavaScript de plano de fundo que gerencia tarefas em segundo plano e possíveis integrações futuras.
-- **manifest.json**: Arquivo de manifesto da extensão, contendo as permissões e os detalhes da extensão.
-  
-## Como Usar
+## 🔧 Funcionalidades
 
-1. **Instalação**
-   - Baixe e extraia o repositório.
-   - Abra o Firefox e vá para `about:debugging`.
-   - Clique em "Carregar extensão temporária" e selecione o diretório do projeto.
+- **Atalhos personalizados** — Associe comandos curtos a frases ou blocos de texto completos.
+- **Confirmação antes da substituição** — Para evitar substituições acidentais.
+- **Interface leve e intuitiva** — Gerencie facilmente seus atalhos.
+- **Compatível com campos `input`, `textarea` e `contenteditable`** — Funciona em diversos tipos de páginas.
+- **Armazenamento local** — Os dados são salvos no navegador, sem uso de servidores externos.
+- **Internacionalização (i18n)** — Suporte a múltiplos idiomas (atualmente: português e inglês).
+- **Suporte a quebras de linha** — Crie textos com estrutura e formatação.
 
-2. **Adicionar Atalhos**
-   - Clique no ícone da extensão na barra de ferramentas do Firefox.
-   - Use a interface para criar novos atalhos, definindo o atalho e o texto correspondente.
-   - Salve os atalhos para que possam ser usados em qualquer página web.
+---
 
-3. **Usar Atalhos**
-   - Ao digitar um atalho em um campo de texto ou conteúdo editável, a extensão irá detectar automaticamente e pedir confirmação para substituir o atalho pelo texto associado.
+## 🗂 Estrutura dos Arquivos
 
-## Próximos Passos
+- `popup.html` — Interface de gerenciamento dos atalhos
+- `popup.css` — Estilo da interface
+- `popup.js` — Lógica de interação com o usuário
+- `content.js` — Substituição de texto em páginas e confirmação
+- `background.js` — Ações em segundo plano (base para futuras integrações)
+- `manifest.json` — Arquivo de configuração da extensão
+- `locales/` — Arquivos de tradução para i18n
 
-- [ ] **Sincronização de Atalhos**: Implementar a sincronização de atalhos entre dispositivos utilizando uma conta de usuário.
-- [ ] **Suporte a Múltiplos Idiomas**: Adicionar traduções e opções de idioma para ampliar o alcance da extensão.
-- [ ] **Melhorias na Interface de Usuário**: Refinar a interface de gerenciamento de atalhos, permitindo uma visualização mais interativa e melhor experiência de edição.
-- [ ] **Testes Automatizados e de Estresse**: Criar uma suíte de testes para validar o comportamento da extensão em cenários reais e com múltiplos atalhos.
-- [ ] **Análises de Uso e Feedback**: Implementar ferramentas para coletar feedback dos usuários e analisar como os atalhos estão sendo utilizados.
-- [ ] **Atalhos Condicionais e Filtros de Contexto**: Implementar filtros para atalhos que são ativados dependendo do tipo de campo ou da situação da página.
+---
 
-## Contribuições
+## 🚀 Como Instalar (Modo Temporário)
 
-Se você deseja contribuir para o projeto, fique à vontade para abrir uma *issue* ou enviar um *pull request*. Todas as contribuições são bem-vindas! Verifique o arquivo `CONTRIBUTING.md` para mais informações sobre como contribuir.
+1. Clone ou baixe este repositório.
+2. No Firefox, acesse `about:debugging`.
+3. Clique em “Carregar extensão temporária” e selecione o manifesto do projeto.
+
+---
+
+## 📝 Como Usar
+
+1. Clique no ícone da extensão.
+2. Adicione um novo atalho com um nome curto e seu texto correspondente.
+3. Em qualquer página web, digite o atalho e confirme a substituição.
+
+---
+
+## 🌱 Sobre o Futuro
+
+ScriptSprint é um projeto em constante evolução. Novas ideias estão sendo exploradas para expandir a extensão com recursos mais avançados, melhor desempenho e uma experiência de usuário ainda mais refinada. Fique à vontade para acompanhar o repositório e sugerir melhorias.
+
+---
+
+## 🤝 Contribuindo
+
+Pull requests são muito bem-vindos! Para sugestões, melhorias ou correções, abra uma *issue* ou envie um *PR*. Sinta-se à vontade para adaptar a extensão às suas necessidades e contribuir com o crescimento do projeto.
