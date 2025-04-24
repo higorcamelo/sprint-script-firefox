@@ -99,20 +99,31 @@ function loadShortcuts() {
 
     const shortcuts = result?.shortcuts || {};
     const list = document.getElementById("shortcutList");
-    list.innerHTML = "";
+    list.innerHTML = ""; // Limpa a lista antes de preenchê-la
 
     if (Object.keys(shortcuts).length === 0) {
       const li = document.createElement("li");
       li.className = "empty";
-      li.textContent = t("no_shortcuts");
+      li.textContent = t("no_shortcuts"); // Apenas texto
       list.appendChild(li);
       return;
     }
 
     Object.entries(shortcuts).forEach(([sc, txt]) => {
       const li = document.createElement("li");
-      li.innerHTML = `<strong>${sc}</strong> → <span class="substitution">${txt}</span>`;
 
+      const strong = document.createElement("strong");
+      strong.textContent = sc; 
+
+      const span = document.createElement("span");
+      span.classList.add("substitution");
+      span.textContent = txt;
+
+      li.appendChild(strong);
+      li.appendChild(document.createTextNode(" → "));
+      li.appendChild(span);
+
+      // Criar o botão de exclusão
       const deleteBtn = document.createElement("button");
       deleteBtn.textContent = t("delete_button");
       deleteBtn.classList.add("delete-btn");
@@ -122,16 +133,17 @@ function loadShortcuts() {
           delete shortcuts[sc];
           chrome.storage.sync.set({ shortcuts }, () => {
             showMessage(t("delete_success"), "success");
-            loadShortcuts();
+            loadShortcuts(); // Recarregar a lista após exclusão
           });
         });
       });
 
       li.appendChild(deleteBtn);
-      list.appendChild(li);
+      list.appendChild(li); // Adiciona o item à lista
     });
   });
 }
+
 
 function showMessage(message, type) {
   const messageDiv = document.getElementById("message");
