@@ -39,6 +39,15 @@
         }
       });
     }
+
+    chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+      if (message.type === "substitutionsUpdated") {
+          loadSubstitutions(() => {
+              substitutions = getSubstitutions();
+              console.log("Atalhos atualizados após mensagem do popup:", substitutions);
+          });
+      }
+  });
   
     function attachListeners() {
       const inputs = document.querySelectorAll("input[type='text'], textarea");
@@ -68,9 +77,6 @@
       substitutions = window.SprintScript.substitutions.getSubstitutions();
       attachListeners();
     });
-  
-    window.SprintScript.substitutions.updateSubstitutions();
-  
-    // Executa observer (carregado em outro script)
+    
   })();
   
