@@ -36,21 +36,32 @@
       window.SprintScript.substitutions.clearShown(el);
       return;
     }
-
-    const shortcut = window.SprintScript.substitutions.findMatchingShortcut(text);
-    if (!shortcut) {
+  
+    // Encontrar todos os atalhos que correspondem ao texto digitado (não importa se é "/teste" ou "/teste1")
+    const substrings = Object.keys(window.SprintScript.substitutions.getSubstitutions())
+      .filter(sub => text.endsWith(sub));
+  
+    if (substrings.length === 0) {
       window.SprintScript.substitutions.clearShown(el);
       return;
     }
+  
+    // Priorizar atalhos mais longos
+    substrings.sort((a, b) => b.length - a.length);
+    const shortcut = substrings[0];
+  
     if (window.SprintScript.substitutions.alreadyShown(el, shortcut)) return;
-
+  
     const expanded = window.SprintScript.substitutions.getSubstitutions()[shortcut];
+  
+    // Exibir o tooltip apenas se o atalho for totalmente digitado
     window.SprintScript.tooltip.showTooltip(
       el,
       shortcut,
-      truncateText(expanded),
+      window.SprintScript.utils.truncateText(expanded),
       isEditable ? "contenteditable" : "input",
       () => {
+        // Substituir o texto e limpar a exibição do atalho
         if (isEditable) {
           window.SprintScript.replace.replaceInContentEditable(el, shortcut, expanded);
         } else {
