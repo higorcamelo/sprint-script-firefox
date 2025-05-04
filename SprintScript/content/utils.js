@@ -3,12 +3,8 @@
     window.SprintScript = {};
   }
 
-  /**
-   * Trunca um texto para um número máximo de palavras
-   * @param {string} text
-   * @param {number} wordLimit
-   * @returns {string}
-   */
+  const shownShortcuts = new WeakMap(); // Último atalho mostrado por campo
+
   function truncateText(text, wordLimit = 20) {
     const words = text.split(/\s+/);
     if (words.length <= wordLimit) return text;
@@ -16,69 +12,57 @@
   }
 
   function listenerInput(e) {
-    processTextField(e.target);
+    processField(e.target, false);
   }
 
   function listenerEditable(e) {
-    processContentEditable(e.target);
+    processField(e.target, true);
   }
 
   function addListeners() {
-    const inputs = document.querySelectorAll("input[type='text'], textarea");
-    const editables = document.querySelectorAll("[contenteditable='true']");
-
-    inputs.forEach(field => {
+    document.querySelectorAll("input[type='text'], textarea").forEach(field => {
       field.removeEventListener("input", listenerInput);
       field.addEventListener("input", listenerInput);
     });
-
-    editables.forEach(el => {
+    document.querySelectorAll("[contenteditable='true']").forEach(el => {
       el.removeEventListener("input", listenerEditable);
       el.addEventListener("input", listenerEditable);
     });
   }
 
-  function processTextField(field) {
-    const value = field.value;
-    if (!value) return;
-    const substitutions = window.SprintScript.substitutions?.getSubstitutions?.() || {};
-    Object.entries(substitutions).forEach(([shortcut, text]) => {
-      if (value.includes(shortcut)) {
-        window.SprintScript.tooltip.confirmSubstitution(
-          field,
-          shortcut,
-          text,
-          "input",
-          () => {
-            window.SprintScript.replace.replaceInTextField(field, shortcut, text);
-          }
-        );
+  function processField(el, isEditable) {
+    const text = isEditable ? el.innerText : el.value;
+    if (!text) {
+      window.SprintScript.substitutions.clearShown(el);
+      return;
+    }
+
+    const shortcut = window.SprintScript.substitutions.findMatchingShortcut(text);
+    if (!shortcut) {
+      window.SprintScript.substitutions.clearShown(el);
+      return;
+    }
+    if (window.SprintScript.substitutions.alreadyShown(el, shortcut)) return;
+
+    const expanded = window.SprintScript.substitutions.getSubstitutions()[shortcut];
+    window.SprintScript.tooltip.showTooltip(
+      el,
+      shortcut,
+      truncateText(expanded),
+      isEditable ? "contenteditable" : "input",
+      () => {
+        if (isEditable) {
+          window.SprintScript.replace.replaceInContentEditable(el, shortcut, expanded);
+        } else {
+          window.SprintScript.replace.replaceInTextField(el, shortcut, expanded);
+        }
+        window.SprintScript.substitutions.clearShown(el);
       }
-    });
+    );
   }
 
-  function processContentEditable(el) {
-    const value = el.innerText;
-    if (!value) return;
-    const substitutions = window.SprintScript.substitutions?.getSubstitutions?.() || {};
-    Object.entries(substitutions).forEach(([shortcut, text]) => {
-      if (value.includes(shortcut)) {
-        window.SprintScript.tooltip.confirmSubstitution(
-          el,
-          shortcut,
-          text,
-          "contenteditable",
-          () => {
-            window.SprintScript.replace.replaceInContentEditable(el, shortcut, text);
-          }
-        );
-      }
-    });
-  }
-
-  // Expor publicamente
   window.SprintScript.utils = {
     truncateText,
-    addListeners,
+    addListeners
   };
 })();
