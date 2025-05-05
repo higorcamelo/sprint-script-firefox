@@ -20,13 +20,18 @@
   }
 
   function addListeners() {
-    document.querySelectorAll("input[type='text'], textarea").forEach(field => {
-      field.removeEventListener("input", listenerInput);
-      field.addEventListener("input", listenerInput);
-    });
-    document.querySelectorAll("[contenteditable='true']").forEach(el => {
-      el.removeEventListener("input", listenerEditable);
-      el.addEventListener("input", listenerEditable);
+    // inclui input/textarea e contenteditable dos chats do WhatsApp e Instagram
+    const fields = document.querySelectorAll(
+      "input[type='text'], textarea, div[contenteditable='true'][role='textbox'], [aria-label='Mensagem']"
+    );
+    fields.forEach(el => {
+      if (el.matches("input[type='text'], textarea")) {
+        el.removeEventListener('input', listenerInput);
+        el.addEventListener('input', listenerInput);
+      } else {
+        el.removeEventListener('input', listenerEditable);
+        el.addEventListener('input', listenerEditable);
+      }
     });
   }
 
@@ -34,42 +39,52 @@
     const text = isEditable ? el.innerText : el.value;
     if (!text) {
       window.SprintScript.substitutions.clearShown(el);
+      shownShortcuts.delete(el);
       return;
     }
-  
-    // Encontrar todos os atalhos que correspondem ao texto digitado (não importa se é "/teste" ou "/teste1")
-    const substrings = Object.keys(window.SprintScript.substitutions.getSubstitutions())
-      .filter(sub => text.endsWith(sub));
-  
-    if (substrings.length === 0) {
+
+    const substitutions = window.SprintScript.substitutions.getSubstitutions();
+    const keys = Object.keys(substitutions).sort((a, b) => b.length - a.length);
+    const matchedShortcut = keys.find(sub => text.endsWith(sub));
+
+    const lastShownSet = shownShortcuts.get(el) || new Set();
+    const lastShortcut = Array.from(lastShownSet)[0];
+
+    // Se não há atalho atual, mas havia um mostrado antes → esconder
+    if (!matchedShortcut && lastShortcut) {
+      console.log("[SprintScript] Atalho não está mais no final. Ocultando tooltip.");
+      window.SprintScript.tooltip.hideTooltip?.();
       window.SprintScript.substitutions.clearShown(el);
+      shownShortcuts.delete(el);
       return;
     }
-  
-    // Priorizar atalhos mais longos
-    substrings.sort((a, b) => b.length - a.length);
-    const shortcut = substrings[0];
-  
-    if (window.SprintScript.substitutions.alreadyShown(el, shortcut)) return;
-  
-    const expanded = window.SprintScript.substitutions.getSubstitutions()[shortcut];
-  
-    // Exibir o tooltip apenas se o atalho for totalmente digitado
+
+    // Se já foi mostrado para esse campo, não mostrar novamente
+    if (matchedShortcut && window.SprintScript.substitutions.alreadyShown(el, matchedShortcut)) {
+      return;
+    }
+
+    if (!matchedShortcut) return;
+
+    const expanded = substitutions[matchedShortcut];
+
     window.SprintScript.tooltip.showTooltip(
       el,
-      shortcut,
+      matchedShortcut,
       window.SprintScript.utils.truncateText(expanded),
       isEditable ? "contenteditable" : "input",
       () => {
-        // Substituir o texto e limpar a exibição do atalho
         if (isEditable) {
-          window.SprintScript.replace.replaceInContentEditable(el, shortcut, expanded);
+          window.SprintScript.replace.replaceInContentEditable(el, matchedShortcut, expanded);
         } else {
-          window.SprintScript.replace.replaceInTextField(el, shortcut, expanded);
+          window.SprintScript.replace.replaceInTextField(el, matchedShortcut, expanded);
         }
         window.SprintScript.substitutions.clearShown(el);
+        shownShortcuts.delete(el);
       }
     );
+
+    shownShortcuts.set(el, new Set([matchedShortcut]));
   }
 
   window.SprintScript.utils = {

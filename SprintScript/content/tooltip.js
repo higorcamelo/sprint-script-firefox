@@ -4,8 +4,8 @@
   let tooltip = document.getElementById("sprint-tooltip");
   let autoHideTimeout;
   let keyListener;
-  let currentElement; // Adicionado para rastrear o elemento atual
-  let currentShortcut; // Adicionado para rastrear o atalho atual
+  let currentElement;
+  let currentShortcut;
 
   if (!tooltip) {
     tooltip = document.createElement("div");
@@ -33,8 +33,8 @@
     document.removeEventListener("keydown", keyListener);
     setTimeout(() => {
       tooltip.style.display = "none";
-      currentElement = null; // Limpa o elemento ao esconder
-      currentShortcut = null; // Limpa o atalho ao esconder
+      currentElement = null;
+      currentShortcut = null;
     }, 200);
   }
 
@@ -43,13 +43,11 @@
     clearTimeout(autoHideTimeout);
     document.removeEventListener("keydown", keyListener);
 
-    // Armazena o elemento e atalho atuais
     currentElement = element;
     currentShortcut = shortcut;
 
     tooltip.innerHTML = "";
 
-    // Cria mensagem (mantido igual)
     const span1 = document.createElement('span');
     span1.textContent = (chrome.i18n.getMessage("replace_with") || "Replace") + ' ';
     const bold1 = document.createElement('b');
@@ -64,7 +62,6 @@
     tooltip.appendChild(bold2);
     tooltip.appendChild(document.createElement('br'));
 
-    // Botões (mantido igual)
     const btnConfirm = document.createElement('button');
     btnConfirm.textContent = chrome.i18n.getMessage("tooltip_confirm") || '✔';
     Object.assign(btnConfirm.style, {
@@ -92,7 +89,6 @@
     tooltip.appendChild(btnConfirm);
     tooltip.appendChild(btnCancel);
 
-    // Posicionamento dinâmico (mantido igual)
     const rect = element.getBoundingClientRect();
     const scrollY = window.scrollY;
     const scrollX = window.scrollX;
@@ -114,7 +110,6 @@
       tooltip.style.opacity = '1';
     }, 10);
 
-    // Eventos de confirmação/esc (mantido igual)
     btnConfirm.onclick = function() {
       if (typeof confirmCallback === 'function') confirmCallback();
       hideTooltip();
@@ -126,25 +121,27 @@
     };
     document.addEventListener('keydown', keyListener);
 
-    // MODIFICAÇÃO PRINCIPAL: Auto-hide mais inteligente
     const checkForCompletion = () => {
-      // Verifica se o atalho ainda está presente no elemento
+      if (!currentElement) {
+        hideTooltip();
+        return;
+      }
+
       const currentValue = currentElement.value || currentElement.textContent;
       if (!currentValue.includes(currentShortcut)) {
         hideTooltip();
         return;
       }
-      
-      // Continua verificando a cada 100ms
+
       setTimeout(checkForCompletion, 100);
     };
-    
-    // Inicia a verificação
+
     checkForCompletion();
-    
-    // Timeout de segurança (5 segundos)
     autoHideTimeout = setTimeout(hideTooltip, 5000);
   }
 
-  window.SprintScript.tooltip = { showTooltip };
+  window.SprintScript.tooltip = {
+    showTooltip,
+    hideTooltip
+  };
 })();

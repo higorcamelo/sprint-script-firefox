@@ -3,8 +3,9 @@
     window.SprintScript = {};
   }
 
-  let substitutions = {}; // Armazena os atalhos
-  const shownShortcuts = new WeakMap(); // Rastreamento por campo
+  let substitutions = {};
+  const shownShortcuts = new WeakMap();
+  const ignoredShortcuts = new WeakMap(); // NOVO
 
   function loadSubstitutions(callback) {
     chrome.storage.sync.get("shortcuts", (result) => {
@@ -44,12 +45,31 @@
     shownShortcuts.delete(el);
   }
 
+  // NOVO: Verifica se já foi ignorado naquele ponto
+  function wasIgnored(el, shortcut, index) {
+    const map = ignoredShortcuts.get(el);
+    if (!map) return false;
+    return map.has(`${shortcut}-${index}`);
+  }
+
+  // NOVO: Marca como ignorado
+  function markIgnored(el, shortcut, index) {
+    let map = ignoredShortcuts.get(el);
+    if (!map) {
+      map = new Set();
+      ignoredShortcuts.set(el, map);
+    }
+    map.add(`${shortcut}-${index}`);
+  }
+
   window.SprintScript.substitutions = {
     loadSubstitutions,
     getSubstitutions,
     saveSubstitutions,
     findMatchingShortcut,
     alreadyShown,
-    clearShown
+    clearShown,
+    wasIgnored,       // exporta
+    markIgnored       // exporta
   };
 })();
