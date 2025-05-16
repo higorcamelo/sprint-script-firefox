@@ -21,25 +21,34 @@ ScriptSprint é ideal para quem trabalha com preenchimento de formulários, supo
 
 - **Atalhos personalizados** — Associe comandos curtos a frases ou blocos de texto completos.
 - **Confirmação antes da substituição** — Para evitar substituições acidentais.
-- **Interface leve e intuitiva** — Gerencie facilmente seus atalhos.
-- **Compatível com campos `input`, `textarea` e `contenteditable`** — Funciona em diversos tipos de páginas.
-- **Armazenamento local** — Os dados são salvos no navegador, sem uso de servidores externos.
-- **Internacionalização (i18n)** — Suporte a múltiplos idiomas (atualmente: português e inglês).
+- **Suporte a `input`, `textarea` e áreas `contenteditable`** — Funciona até em chats como WhatsApp Web e Instagram.
 - **Suporte a quebras de linha** — Crie textos com estrutura e formatação.
+- **Interface intuitiva** — Gerencie facilmente seus atalhos.
+- **Internacionalização (i18n)** — Interface em português e inglês.
+- **Armazenamento local** — Nenhum dado sai do seu navegador.
+- **Extensão 100% open source** — Transparente, leve e personalizável.
 
 ---
 
 ## 🗂 Estrutura dos Arquivos
 
-- `popup.html` — Interface de gerenciamento dos atalhos
-- `popup.css` — Estilo da interface
-- `popup.js` — Lógica de interação com o usuário
-- `content.js` — Substituição de texto em páginas e confirmação
-- `background.js` — Ações em segundo plano (base para futuras integrações)
-- `manifest.json` — Arquivo de configuração da extensão
-- `locales/` — Arquivos de tradução para i18n
+```bash
+├── index.js                 # Arquivo principal que conecta todos os módulos
+│   ├── i18n.js              # Lógica de tradução e idioma
+│   ├── substitutions.js     # Carrega os atalhos, aplica substituições e escuta digitação
+│   ├── tooltip.js           # Criação, exibição e comportamento do tooltip de confirmação
+│   ├── replace.js           # Funções para substituir texto nos campos
+│   ├── observer.js          # Observa mudanças na página e adiciona listeners
+│   └── utils.js             # Funções auxiliares como truncar texto, etc.
+├── popup.html              # Interface do usuário para gerenciamento de atalhos
+├── popup.css               # Estilos da interface
+├── popup.js                # Lógica de interação no popup
+├── manifest.json           # Configurações da extensão
+├── locales/                # Arquivos de tradução (i18n)
 
+```
 ---
+
 
 ## 🚀 Como Instalar (Modo Temporário)
 
