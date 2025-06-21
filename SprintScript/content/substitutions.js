@@ -62,6 +62,15 @@
     map.add(`${shortcut}-${index}`);
   }
 
+  function markAsShown(el, shortcut) {
+  let set = shownShortcuts.get(el);
+  if (!set) {
+    set = new Set();
+    shownShortcuts.set(el, set);
+  }
+  set.add(shortcut);
+}
+
   window.SprintScript.substitutions = {
     loadSubstitutions,
     getSubstitutions,
@@ -70,6 +79,7 @@
     alreadyShown,
     clearShown,
     wasIgnored,       // exporta
-    markIgnored       // exporta
+    markIgnored,    // exporta
+    markAsShown
   };
 })();

@@ -64,6 +64,7 @@
 
     const btnConfirm = document.createElement('button');
     btnConfirm.textContent = chrome.i18n.getMessage("tooltip_confirm") || '✔';
+    btnConfirm.setAttribute("tabindex", "-1");
     Object.assign(btnConfirm.style, {
       margin: '6px 8px 0 0',
       padding: '4px 8px',
@@ -76,6 +77,7 @@
 
     const btnCancel = document.createElement('button');
     btnCancel.textContent = chrome.i18n.getMessage("tooltip_cancel") || '✖';
+    btnCancel.setAttribute("tabindex", "-1");
     Object.assign(btnCancel.style, {
       margin: '6px 0 0 0',
       padding: '4px 8px',
@@ -110,14 +112,26 @@
       tooltip.style.opacity = '1';
     }, 10);
 
-    btnConfirm.onclick = function() {
+    btnConfirm.addEventListener("mousedown", function (e) {
+      e.preventDefault();
       if (typeof confirmCallback === 'function') confirmCallback();
       hideTooltip();
-    };
-    btnCancel.onclick = hideTooltip;
-    keyListener = function(e) {
-      if (e.key === 'Enter') btnConfirm.click();
-      if (e.key === 'Escape') btnCancel.click();
+    });
+
+    btnCancel.addEventListener("mousedown", function (e) {
+      e.preventDefault();
+      hideTooltip();
+    });
+
+    keyListener = function (e) {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        btnConfirm.dispatchEvent(new MouseEvent("mousedown"));
+      }
+      if (e.key === 'Escape') {
+        e.preventDefault();
+        btnCancel.dispatchEvent(new MouseEvent("mousedown"));
+      }
     };
     document.addEventListener('keydown', keyListener);
 
