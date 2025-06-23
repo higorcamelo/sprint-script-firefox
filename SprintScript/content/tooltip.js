@@ -30,6 +30,7 @@
   }
 
   function hideTooltip() {
+    console.log("[SprintScript] hideTooltip: Ocultando tooltip.");
     tooltip.style.opacity = "0";
     clearTimeout(autoHideTimeout);
     document.removeEventListener("keydown", keyListener);
@@ -62,7 +63,6 @@
   }
 
   function showTooltip(element, shortcut, text, type, confirmCallback) {
-    console.log("[SprintScript] showTooltip para atalho:", shortcut, "com texto:", text);
     clearTimeout(autoHideTimeout);
     document.removeEventListener("keydown", keyListener);
 
@@ -148,8 +148,8 @@
     btnCancel.addEventListener("mousedown", function (e) {
       e.preventDefault();
       if (typeof window.SprintScript.substitutions?.markIgnored === 'function') {
-        const index = (element.value || element.textContent).lastIndexOf(shortcut);
-        window.SprintScript.substitutions.markIgnored(element, shortcut, index);
+        window.SprintScript.substitutions.markIgnored(element, shortcut);
+        window.SprintScript.substitutions.clearShown(element);
       }
       hideTooltip();
     });
@@ -161,10 +161,6 @@
       }
       if (e.key === 'Escape') {
         e.preventDefault();
-        if (typeof window.SprintScript.substitutions?.markIgnored === 'function') {
-          const index = (currentElement.value || currentElement.textContent).lastIndexOf(currentShortcut);
-          window.SprintScript.substitutions.markIgnored(currentElement, currentShortcut, index);
-        }
         btnCancel.dispatchEvent(new MouseEvent("mousedown"));
       }
     };
@@ -175,18 +171,18 @@
         hideTooltip();
         return;
       }
-
       const currentValue = currentElement.value || currentElement.textContent;
       if (!currentValue.includes(currentShortcut)) {
         hideTooltip();
         return;
       }
-
       setTimeout(checkForCompletion, 100);
     };
 
     checkForCompletion();
-    autoHideTimeout = setTimeout(hideTooltip, 5000);
+    autoHideTimeout = setTimeout(() => {
+      hideTooltip();
+    }, 5000);
   }
 
   window.SprintScript.tooltip = {
