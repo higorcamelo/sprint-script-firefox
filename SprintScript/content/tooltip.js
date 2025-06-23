@@ -11,7 +11,7 @@
     tooltip = document.createElement("div");
     tooltip.id = "sprint-tooltip";
     tooltip.style.position = "absolute";
-    tooltip.style.background = "#fff";
+    tooltip.style.background = "rgba(255,255,255,0.95)";
     tooltip.style.color = "#000";
     tooltip.style.border = "1px solid #ccc";
     tooltip.style.padding = "10px 12px";
@@ -24,6 +24,7 @@
     tooltip.style.whiteSpace = "normal";
     tooltip.style.lineHeight = "1.5";
     tooltip.style.transition = "opacity 0.2s ease";
+    tooltip.style.backdropFilter = "blur(4px)";
     document.body.appendChild(tooltip);
   }
 
@@ -38,16 +39,41 @@
     }, 200);
   }
 
+  function getCaretCoordinates(input, position) {
+    const div = document.createElement("div");
+    const style = getComputedStyle(input);
+    for (const prop of style) {
+      div.style[prop] = style[prop];
+    }
+    div.style.position = "absolute";
+    div.style.visibility = "hidden";
+    div.style.whiteSpace = "pre-wrap";
+    div.style.wordWrap = "break-word";
+    div.style.width = input.offsetWidth + "px";
+    div.textContent = input.value.substring(0, position);
+    const span = document.createElement("span");
+    span.textContent = input.value.substring(position) || ".";
+    div.appendChild(span);
+    document.body.appendChild(div);
+    const rect = span.getBoundingClientRect();
+    document.body.removeChild(div);
+    return rect;
+  }
+
   function showTooltip(element, shortcut, text, type, confirmCallback) {
-    console.log("[SprintScript] showTooltip para atalho:", shortcut, "com texto:", text);
     clearTimeout(autoHideTimeout);
     document.removeEventListener("keydown", keyListener);
 
     currentElement = element;
     currentShortcut = shortcut;
 
+    if (typeof window.SprintScript.substitutions?.markAsShown === 'function') {
+      window.SprintScript.substitutions.markAsShown(element, shortcut);
+    }
+
     tooltip.innerHTML = "";
 
+    // Monta o conteúdo do tooltip com internacionalização
     const span1 = document.createElement('span');
     span1.textContent = (chrome.i18n.getMessage("replace_with") || "Replace") + ' ';
     const bold1 = document.createElement('b');
@@ -62,8 +88,10 @@
     tooltip.appendChild(bold2);
     tooltip.appendChild(document.createElement('br'));
 
+    // Botão de confirmar
     const btnConfirm = document.createElement('button');
     btnConfirm.textContent = chrome.i18n.getMessage("tooltip_confirm") || '✔';
+    btnConfirm.setAttribute("tabindex", "-1");
     Object.assign(btnConfirm.style, {
       margin: '6px 8px 0 0',
       padding: '4px 8px',
@@ -74,8 +102,10 @@
       cursor: 'pointer'
     });
 
+    // Botão de cancelar
     const btnCancel = document.createElement('button');
     btnCancel.textContent = chrome.i18n.getMessage("tooltip_cancel") || '✖';
+    btnCancel.setAttribute("tabindex", "-1");
     Object.assign(btnCancel.style, {
       margin: '6px 0 0 0',
       padding: '4px 8px',
@@ -89,55 +119,73 @@
     tooltip.appendChild(btnConfirm);
     tooltip.appendChild(btnCancel);
 
-    const rect = element.getBoundingClientRect();
-    const scrollY = window.scrollY;
-    const scrollX = window.scrollX;
-    tooltip.style.display = 'block';
-    tooltip.style.opacity = '0';
-    const h = tooltip.offsetHeight;
-    const w = tooltip.offsetWidth;
-    let top = rect.bottom + scrollY + 6;
-    if (top + h > window.innerHeight + scrollY) {
-      top = rect.top + scrollY - h - 6;
+    // Calcula posição do tooltip
+    let top = 0;
+    let left = 0;
+    if (element.selectionStart !== undefined) {
+      const caret = getCaretCoordinates(element, element.selectionStart);
+      top = caret.top + window.scrollY + 20;
+      left = caret.left + window.scrollX;
+    } else {
+      const rect = element.getBoundingClientRect();
+      top = rect.bottom + 6 + window.scrollY;
+      left = rect.left + window.scrollX;
     }
-    let left = rect.left + scrollX;
-    if (left + w > window.innerWidth + scrollX) {
-      left = window.innerWidth + scrollX - w - 6;
-    }
+
     tooltip.style.top = top + 'px';
     tooltip.style.left = left + 'px';
+    tooltip.style.opacity = '0';
+    tooltip.style.display = 'block';
     setTimeout(() => {
       tooltip.style.opacity = '1';
     }, 10);
 
-    btnConfirm.onclick = function() {
+    // Remove listeners antigos antes de adicionar novos
+    btnConfirm.addEventListener("mousedown", function (e) {
+      e.preventDefault();
       if (typeof confirmCallback === 'function') confirmCallback();
       hideTooltip();
-    };
-    btnCancel.onclick = hideTooltip;
-    keyListener = function(e) {
-      if (e.key === 'Enter') btnConfirm.click();
-      if (e.key === 'Escape') btnCancel.click();
+    });
+
+    btnCancel.addEventListener("mousedown", function (e) {
+      e.preventDefault();
+      if (typeof window.SprintScript.substitutions?.markIgnored === 'function') {
+        window.SprintScript.substitutions.markIgnored(element, shortcut);
+        window.SprintScript.substitutions.clearShown(element);
+      }
+      hideTooltip();
+    });
+
+    keyListener = function (e) {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        btnConfirm.dispatchEvent(new MouseEvent("mousedown"));
+      }
+      if (e.key === 'Escape') {
+        e.preventDefault();
+        btnCancel.dispatchEvent(new MouseEvent("mousedown"));
+      }
     };
     document.addEventListener('keydown', keyListener);
 
+    // Esconde o tooltip se o comando sumir do campo
     const checkForCompletion = () => {
       if (!currentElement) {
         hideTooltip();
         return;
       }
-
       const currentValue = currentElement.value || currentElement.textContent;
       if (!currentValue.includes(currentShortcut)) {
         hideTooltip();
         return;
       }
-
       setTimeout(checkForCompletion, 100);
     };
 
     checkForCompletion();
-    autoHideTimeout = setTimeout(hideTooltip, 5000);
+    autoHideTimeout = setTimeout(() => {
+      hideTooltip();
+    }, 5000);
   }
 
   window.SprintScript.tooltip = {

@@ -187,3 +187,15 @@ textarea {
   visibility: visible;
   opacity: 1;
 }
+
+.visually-hidden {
+  position: absolute !important;
+  height: 1px; width: 1px;
+  overflow: hidden;
+  clip: rect(1px, 1px, 1px, 1px);
+  white-space: nowrap;
+}
+
+.message.success { color: #28a745; }
+.message.error   { color: #dc3545; }
+

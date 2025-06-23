@@ -45,8 +45,15 @@ document.addEventListener('DOMContentLoaded', async () => {
   }
 
   loadShortcuts();
-  document.getElementById("saveButton")
-          .addEventListener("click", saveShortcut);
+  const btn = document.getElementById("saveButton");
+  btn.addEventListener("click", () => {
+    btn.disabled = true;
+    saveShortcut().finally(() => {
+      btn.disabled = false;
+    });
+  });
+
+  document.getElementById("shortcut").focus();
 });
 
 function saveShortcut() {
@@ -55,38 +62,47 @@ function saveShortcut() {
 
   if (!shortcut || !replacement) {
     showMessage(t("error_fill_fields"), "error");
-    return;
+    return Promise.resolve();
   }
 
-  chrome.storage.sync.get(["shortcuts"], (result) => {
-    const shortcuts = result?.shortcuts || {};
+  return new Promise((resolve) => {
+    chrome.storage.sync.get(["shortcuts"], (result) => {
+      const shortcuts = result?.shortcuts || {};
 
-    if (shortcuts[shortcut]) {
-      openConfirmModal(() => {
+      if (shortcuts[shortcut]) {
+        openConfirmModal(() => {
+          shortcuts[shortcut] = replacement;
+          saveAndRefresh(shortcuts, shortcut, resolve);
+        });
+      } else {
         shortcuts[shortcut] = replacement;
-        saveAndRefresh(shortcuts, shortcut);
-      });
-    } else {
-      shortcuts[shortcut] = replacement;
-      saveAndRefresh(shortcuts, shortcut);
-    }
+        saveAndRefresh(shortcuts, shortcut, resolve);
+      }
+    });
   });
 }
 
-function saveAndRefresh(shortcuts, shortcut) {
+function saveAndRefresh(shortcuts, shortcut, resolve) {
   chrome.storage.sync.set({ shortcuts }, () => {
     if (chrome.runtime.lastError) {
-      showMessage(t("message_error") + chrome.runtime.lastError.message, "error");
+      let msg = chrome.runtime.lastError.message;
+      if (msg.includes("QUOTA_BYTES")) {
+        showMessage(t("storage_limit_error") || "Limite de armazenamento atingido.", "error");
+      } else {
+        showMessage(t("message_error") + msg, "error");
+      }
+      resolve();
       return;
     }
     showMessage(t("message_saved"), "success");
     document.getElementById("shortcut").value    = "";
     document.getElementById("replacement").value = "";
+    document.getElementById("shortcut").focus(); // <-- foca após salvar
     loadShortcuts();
-
     chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
       chrome.tabs.sendMessage(tabs[0].id, { action: "updateShortcuts" });
     });
+    resolve();
   });
 }
 
@@ -127,6 +143,8 @@ function loadShortcuts() {
       const deleteBtn = document.createElement("button");
       deleteBtn.textContent = t("delete_button");
       deleteBtn.classList.add("delete-btn");
+      deleteBtn.setAttribute("aria-label", t("delete_button") + " " + sc);
+      deleteBtn.setAttribute("tabindex", "0");
 
       deleteBtn.addEventListener("click", () => {
         openConfirmModal(() => {
@@ -135,7 +153,7 @@ function loadShortcuts() {
             showMessage(t("delete_success"), "success");
             loadShortcuts(); // Recarregar a lista após exclusão
           });
-        });
+        }, sc); // Passa o atalho para a função de confirmação
       });
 
       li.appendChild(deleteBtn);
@@ -155,16 +173,21 @@ function showMessage(message, type) {
   }, 2500);
 }
 
-function openConfirmModal(onConfirm) {
+function openConfirmModal(onConfirm, shortcut) {
   const modal      = document.getElementById("confirmModal");
   const confirmBtn = document.getElementById("confirmDelete");
   const cancelBtn  = document.getElementById("cancelDelete");
   modal.classList.remove("hidden");
 
+  // Atualiza o texto da confirmação com o atalho, se disponível
+  document.querySelector('#confirmModal [data-i18n="confirm_delete"]').textContent =
+    t("confirm_delete") + (shortcut ? ` (${shortcut})?` : "");
+
   function cleanup() {
     confirmBtn.removeEventListener("click", handleConfirm);
     cancelBtn.removeEventListener("click", handleCancel);
     modal.classList.add("hidden");
+    document.querySelector('#confirmModal [data-i18n="confirm_delete"]').textContent = t("confirm_delete");
   }
   function handleConfirm() {
     onConfirm();
@@ -177,3 +200,9 @@ function openConfirmModal(onConfirm) {
   confirmBtn.addEventListener("click", handleConfirm);
   cancelBtn .addEventListener("click", handleCancel);
 }
+
+chrome.storage.onChanged.addListener((changes, area) => {
+  if (area === "sync" && changes.shortcuts) {
+    loadShortcuts();
+  }
+});

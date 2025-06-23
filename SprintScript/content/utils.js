@@ -1,9 +1,8 @@
 (function () {
-  if (!window.SprintScript) {
-    window.SprintScript = {};
-  }
+  if (!window.SprintScript) window.SprintScript = {};
 
-  const shownShortcuts = new WeakMap(); // Último atalho mostrado por campo
+  const DEBUG = false;
+  const shownShortcuts = new WeakMap();
 
   function truncateText(text, wordLimit = 20) {
     const words = text.split(/\s+/);
@@ -20,7 +19,6 @@
   }
 
   function addListeners() {
-    // inclui input/textarea e contenteditable dos chats do WhatsApp e Instagram
     const fields = document.querySelectorAll(
       "input[type='text'], textarea, div[contenteditable='true'][role='textbox'], [aria-label='Mensagem']"
     );
@@ -36,9 +34,15 @@
   }
 
   function processField(el, isEditable) {
-    const text = isEditable ? el.innerText : el.value;
+    // Suporte universal: pega o texto correto do campo
+    let text = (typeof isEditable === "boolean")
+      ? (isEditable ? el.innerText : el.value)
+      : (el.value !== undefined ? el.value : el.innerText);
+
     if (!text) {
+      if (DEBUG) console.log("[SprintScript] processField: Campo vazio, limpando estados.");
       window.SprintScript.substitutions.clearShown(el);
+      window.SprintScript.substitutions.clearIgnored(el);
       shownShortcuts.delete(el);
       return;
     }
@@ -47,20 +51,36 @@
     const keys = Object.keys(substitutions).sort((a, b) => b.length - a.length);
     const matchedShortcut = keys.find(sub => text.endsWith(sub));
 
+    // Limpa ignorados se o comando sumiu do campo
+    keys.forEach(shortcut => {
+      if (
+        window.SprintScript.substitutions.wasIgnored(el, shortcut) &&
+        !text.includes(shortcut)
+      ) {
+        window.SprintScript.substitutions.clearOneIgnored(el, shortcut);
+        if (DEBUG) console.log(`[SprintScript] processField: '${shortcut}' sumiu do campo, limpando ignorados.`);
+      }
+    });
+
     const lastShownSet = shownShortcuts.get(el) || new Set();
     const lastShortcut = Array.from(lastShownSet)[0];
 
-    // Se não há atalho atual, mas havia um mostrado antes → esconder
     if (!matchedShortcut && lastShortcut) {
-      console.log("[SprintScript] Atalho não está mais no final. Ocultando tooltip.");
+      if (DEBUG) console.log("[SprintScript] processField: Atalho não está mais no final. Ocultando tooltip.");
       window.SprintScript.tooltip.hideTooltip?.();
       window.SprintScript.substitutions.clearShown(el);
       shownShortcuts.delete(el);
       return;
     }
 
-    // Se já foi mostrado para esse campo, não mostrar novamente
+    // Não mostra tooltip se já foi ignorado e ainda está no campo
+    if (matchedShortcut && window.SprintScript.substitutions.wasIgnored(el, matchedShortcut)) {
+      if (DEBUG) console.log(`[SprintScript] processField: '${matchedShortcut}' já foi ignorado e ainda está no campo, não mostra tooltip.`);
+      return;
+    }
+
     if (matchedShortcut && window.SprintScript.substitutions.alreadyShown(el, matchedShortcut)) {
+      if (DEBUG) console.log(`[SprintScript] processField: '${matchedShortcut}' já foi mostrado, não mostra novamente.`);
       return;
     }
 
@@ -68,13 +88,15 @@
 
     const expanded = substitutions[matchedShortcut];
 
+    if (DEBUG) console.log(`[SprintScript] processField: Mostrando tooltip para '${matchedShortcut}' em`, el);
+
     window.SprintScript.tooltip.showTooltip(
       el,
       matchedShortcut,
-      window.SprintScript.utils.truncateText(expanded),
-      isEditable ? "contenteditable" : "input",
+      truncateText(expanded),
+      (typeof isEditable === "boolean" ? (isEditable ? "contenteditable" : "input") : (el.isContentEditable ? "contenteditable" : "input")),
       () => {
-        if (isEditable) {
+        if (isEditable || el.isContentEditable) {
           window.SprintScript.replace.replaceInContentEditable(el, matchedShortcut, expanded);
         } else {
           window.SprintScript.replace.replaceInTextField(el, matchedShortcut, expanded);
@@ -89,6 +111,7 @@
 
   window.SprintScript.utils = {
     truncateText,
-    addListeners
+    addListeners,
+    processField // útil para integração direta
   };
 })();
