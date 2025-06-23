@@ -11,7 +11,7 @@
     tooltip = document.createElement("div");
     tooltip.id = "sprint-tooltip";
     tooltip.style.position = "absolute";
-    tooltip.style.background = "#fff";
+    tooltip.style.background = "rgba(255,255,255,0.95)";
     tooltip.style.color = "#000";
     tooltip.style.border = "1px solid #ccc";
     tooltip.style.padding = "10px 12px";
@@ -25,12 +25,10 @@
     tooltip.style.lineHeight = "1.5";
     tooltip.style.transition = "opacity 0.2s ease";
     tooltip.style.backdropFilter = "blur(4px)";
-    tooltip.style.background = "rgba(255, 255, 255, 0.95)";
     document.body.appendChild(tooltip);
   }
 
   function hideTooltip() {
-    console.log("[SprintScript] hideTooltip: Ocultando tooltip.");
     tooltip.style.opacity = "0";
     clearTimeout(autoHideTimeout);
     document.removeEventListener("keydown", keyListener);
@@ -75,6 +73,7 @@
 
     tooltip.innerHTML = "";
 
+    // Monta o conteúdo do tooltip com internacionalização
     const span1 = document.createElement('span');
     span1.textContent = (chrome.i18n.getMessage("replace_with") || "Replace") + ' ';
     const bold1 = document.createElement('b');
@@ -89,6 +88,7 @@
     tooltip.appendChild(bold2);
     tooltip.appendChild(document.createElement('br'));
 
+    // Botão de confirmar
     const btnConfirm = document.createElement('button');
     btnConfirm.textContent = chrome.i18n.getMessage("tooltip_confirm") || '✔';
     btnConfirm.setAttribute("tabindex", "-1");
@@ -102,6 +102,7 @@
       cursor: 'pointer'
     });
 
+    // Botão de cancelar
     const btnCancel = document.createElement('button');
     btnCancel.textContent = chrome.i18n.getMessage("tooltip_cancel") || '✖';
     btnCancel.setAttribute("tabindex", "-1");
@@ -118,9 +119,9 @@
     tooltip.appendChild(btnConfirm);
     tooltip.appendChild(btnCancel);
 
+    // Calcula posição do tooltip
     let top = 0;
     let left = 0;
-
     if (element.selectionStart !== undefined) {
       const caret = getCaretCoordinates(element, element.selectionStart);
       top = caret.top + window.scrollY + 20;
@@ -139,6 +140,7 @@
       tooltip.style.opacity = '1';
     }, 10);
 
+    // Remove listeners antigos antes de adicionar novos
     btnConfirm.addEventListener("mousedown", function (e) {
       e.preventDefault();
       if (typeof confirmCallback === 'function') confirmCallback();
@@ -166,6 +168,7 @@
     };
     document.addEventListener('keydown', keyListener);
 
+    // Esconde o tooltip se o comando sumir do campo
     const checkForCompletion = () => {
       if (!currentElement) {
         hideTooltip();

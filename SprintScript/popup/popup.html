@@ -13,29 +13,33 @@
     </header>
 
     <div class="form">
+      <label for="shortcut" data-i18n="shortcut_label" class="visually-hidden">Atalho</label>
       <input type="text" id="shortcut"
              placeholder=""
-             data-i18n="shortcut_placeholder" />
+             data-i18n="shortcut_placeholder"
+             aria-label="Atalho" />
 
+      <label for="replacement" data-i18n="replacement_label" class="visually-hidden">Substituição</label>
       <textarea id="replacement"
                 placeholder=""
-                data-i18n="replacement_placeholder"></textarea>
+                data-i18n="replacement_placeholder"
+                aria-label="Substituição"></textarea>
 
-      <button id="saveButton" data-i18n="save_button"></button>
+      <button id="saveButton" data-i18n="save_button" aria-label="Salvar"></button>
     </div>
 
     <ul id="shortcutList"></ul>
 
-    <div id="message" data-i18n="message_saved"></div>
+    <div id="message" class="message" aria-live="polite"></div>
   </div>
 
   <!-- Modal de confirmação -->
-  <div id="confirmModal" class="modal hidden">
+  <div id="confirmModal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="confirmDelete">
     <div class="modal-content">
       <p data-i18n="confirm_delete"></p>
       <div class="modal-actions">
-        <button id="confirmDelete" data-i18n="delete_confirmation"></button>
-        <button id="cancelDelete" data-i18n="cancel_delete"></button>
+        <button id="confirmDelete" data-i18n="delete_confirmation" tabindex="0" aria-label="Confirmar exclusão"></button>
+        <button id="cancelDelete" data-i18n="cancel_delete" tabindex="0" aria-label="Cancelar exclusão"></button>
       </div>
     </div>
   </div>
