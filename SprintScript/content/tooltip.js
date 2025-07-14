@@ -99,8 +99,24 @@
     // Truncar textos longos para evitar quebras
     const displayShortcut = shortcut.length > 15 ? shortcut.substring(0, 15) + '...' : shortcut;
     const displayText = text.length > 30 ? text.substring(0, 30) + '...' : text;
-    
-    confirmText.innerHTML = `${chrome.i18n.getMessage("replace_with") || "Substituir"} <strong style="color: #2563eb;">${displayShortcut}</strong> ${chrome.i18n.getMessage("with_text") || "por"} <strong style="color: #059669;">${displayText}</strong>?`;
+
+    // SEGURO: Usa textContent em vez de innerHTML
+    confirmText.innerHTML = '';
+    const substituirText = document.createTextNode((chrome.i18n.getMessage("replace_with") || "Substituir") + ' ');
+    const shortcutSpan = document.createElement('strong');
+    shortcutSpan.style.color = '#2563eb';
+    shortcutSpan.textContent = displayShortcut;
+    const porText = document.createTextNode(' ' + (chrome.i18n.getMessage("with_text") || "por") + ' ');
+    const textSpan = document.createElement('strong');
+    textSpan.style.color = '#059669';
+    textSpan.textContent = displayText;
+    const questionText = document.createTextNode('?');
+
+    confirmText.appendChild(substituirText);
+    confirmText.appendChild(shortcutSpan);
+    confirmText.appendChild(porText);
+    confirmText.appendChild(textSpan);
+    confirmText.appendChild(questionText);
 
     // Container dos botões
     const buttonsContainer = document.createElement('div');

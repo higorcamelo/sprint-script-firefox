@@ -8,7 +8,6 @@
     "activeTab"
   ],
   "background": {
-    "service_worker": "background.js",
     "scripts": ["background.js"]
   },
   "content_scripts": [
@@ -42,7 +41,7 @@
   "browser_specific_settings": {
     "gecko": {
       "id": "sprintscript@meudominio.com",
-      "strict_min_version": "79.0"
+      "strict_min_version": "109.0"
     }
   },
   "default_locale": "en",

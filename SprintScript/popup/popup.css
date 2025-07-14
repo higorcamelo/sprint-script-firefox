@@ -40,17 +40,15 @@ body {
 
 header {
   text-align: center;
-  margin-bottom: 4px; /* Reduzido de 8px para 4px */
+  margin-bottom: 6px; /* Aumentado de 4px para 6px */
 }
 
-h1 {
-  margin: 0;
-  font-size: 1.4rem; /* Reduzido de 1.5rem para 1.4rem */
-  font-weight: 600;
-  background: linear-gradient(135deg, var(--primary-color), #3b82f6);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+.logo {
+  height: 42px; /* Aumentado de 32px para 42px (31% maior) */
+  width: auto;
+  display: block;
+  margin: 0 auto 6px auto; /* Aumentado de 4px para 6px */
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
 }
 
 .form {
