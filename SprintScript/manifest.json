@@ -1,5 +1,5 @@
 {
-  "manifest_version": 2,
+  "manifest_version": 3,
   "name": "SprintScript",
   "version": "1.4",
   "description": "Replace text shortcuts with full links and phrases, with user confirmation.",
@@ -8,8 +8,8 @@
     "activeTab"
   ],
   "background": {
-    "scripts": ["background.js"],
-    "persistent": false
+    "service_worker": "background.js",
+    "scripts": ["background.js"]
   },
   "content_scripts": [
     {
@@ -26,8 +26,8 @@
       "run_at": "document_idle"
     }
   ],
-  "browser_action": {
-    "default_popup": "/popup/popup.html",
+  "action": {
+    "default_popup": "popup/popup.html",
     "default_icon": {
       "16": "images/ss_icon_16.png",
       "32": "images/ss_icon_32.png",
@@ -47,6 +47,9 @@
   },
   "default_locale": "en",
   "web_accessible_resources": [
-  "_locales/*/messages.json"
-]
+    {
+      "resources": ["_locales/*/messages.json"],
+      "matches": ["<all_urls>"]
+    }
+  ]
 }

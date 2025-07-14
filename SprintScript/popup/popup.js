@@ -251,3 +251,18 @@ chrome.storage.onChanged.addListener((changes, area) => {
     loadShortcuts();
   }
 });
+
+// Função para validar o atalho
+function validateShortcut(shortcut) {
+  if (shortcut.length < 2) return "Atalho muito curto";
+  if (shortcut.length > 50) return "Atalho muito longo";
+  if (!/^[a-zA-Z0-9\/\-_]+$/.test(shortcut)) return "Caracteres inválidos";
+  return null;
+}
+
+// Para campos contenteditable
+function sanitizeHTML(html) {
+  const div = document.createElement('div');
+  div.textContent = html;
+  return div.innerHTML;
+}
