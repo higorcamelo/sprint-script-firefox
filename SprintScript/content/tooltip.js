@@ -10,26 +10,36 @@
   if (!tooltip) {
     tooltip = document.createElement("div");
     tooltip.id = "sprint-tooltip";
-    tooltip.style.position = "absolute";
-    tooltip.style.background = "rgba(255,255,255,0.95)";
-    tooltip.style.color = "#000";
-    tooltip.style.border = "1px solid #ccc";
-    tooltip.style.padding = "10px 12px";
-    tooltip.style.borderRadius = "8px";
-    tooltip.style.boxShadow = "0px 2px 8px rgba(0,0,0,0.15)";
-    tooltip.style.zIndex = "10000";
-    tooltip.style.fontSize = "14px";
-    tooltip.style.maxWidth = "360px";
-    tooltip.style.overflowWrap = "break-word";
-    tooltip.style.whiteSpace = "normal";
-    tooltip.style.lineHeight = "1.5";
-    tooltip.style.transition = "opacity 0.2s ease";
-    tooltip.style.backdropFilter = "blur(4px)";
+    
+    // Estilo modernizado e compacto do tooltip
+    Object.assign(tooltip.style, {
+      position: "absolute",
+      background: "linear-gradient(135deg, #ffffff 0%, #f8fafc 100%)",
+      color: "#1f2937",
+      border: "1px solid #e5e7eb",
+      padding: "8px 12px",
+      borderRadius: "8px",
+      boxShadow: "0 6px 16px rgba(0, 0, 0, 0.1), 0 2px 6px rgba(0, 0, 0, 0.06)",
+      zIndex: "10000",
+      fontSize: "13px", // Aumentado de "12px" para "13px"
+      fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
+      maxWidth: "350px",
+      minWidth: "250px",
+      overflowWrap: "break-word",
+      whiteSpace: "normal",
+      lineHeight: "1.3",
+      transition: "all 0.2s cubic-bezier(0.4, 0, 0.2, 1)",
+      backdropFilter: "blur(4px)",
+      display: "none",
+      opacity: "0"
+    });
+    
     document.body.appendChild(tooltip);
   }
 
   function hideTooltip() {
     tooltip.style.opacity = "0";
+    tooltip.style.transform = "translateY(3px) scale(0.96)";
     clearTimeout(autoHideTimeout);
     document.removeEventListener("keydown", keyListener);
     setTimeout(() => {
@@ -67,64 +77,111 @@
     currentElement = element;
     currentShortcut = shortcut;
 
-    if (typeof window.SprintScript.substitutions?.markAsShown === 'function') {
-      window.SprintScript.substitutions.markAsShown(element, shortcut);
-    }
-
     tooltip.innerHTML = "";
 
-    // Monta o conteúdo do tooltip com internacionalização
-    const span1 = document.createElement('span');
-    span1.textContent = (chrome.i18n.getMessage("replace_with") || "Replace") + ' ';
-    const bold1 = document.createElement('b');
-    bold1.textContent = shortcut + ' ';
-    const span2 = document.createElement('span');
-    span2.textContent = (chrome.i18n.getMessage("with_text") || "with") + ' ';
-    const bold2 = document.createElement('b');
-    bold2.textContent = text;
-    tooltip.appendChild(span1);
-    tooltip.appendChild(bold1);
-    tooltip.appendChild(span2);
-    tooltip.appendChild(bold2);
-    tooltip.appendChild(document.createElement('br'));
+    // Container principal
+    const container = document.createElement('div');
+    Object.assign(container.style, {
+      display: 'flex',
+      flexDirection: 'column',
+      gap: '6px'
+    });
+
+    // Texto de confirmação (voltou!)
+    const confirmText = document.createElement('div');
+    Object.assign(confirmText.style, {
+      color: '#6b7280',
+      fontSize: '12px', // Aumentado de '11px' para '12px'
+      lineHeight: '1.3', // Aumentado de '1.2' para '1.3'
+      marginBottom: '2px'
+    });
+    
+    // Truncar textos longos para evitar quebras
+    const displayShortcut = shortcut.length > 15 ? shortcut.substring(0, 15) + '...' : shortcut;
+    const displayText = text.length > 30 ? text.substring(0, 30) + '...' : text;
+    
+    confirmText.innerHTML = `${chrome.i18n.getMessage("replace_with") || "Substituir"} <strong style="color: #2563eb;">${displayShortcut}</strong> ${chrome.i18n.getMessage("with_text") || "por"} <strong style="color: #059669;">${displayText}</strong>?`;
+
+    // Container dos botões
+    const buttonsContainer = document.createElement('div');
+    Object.assign(buttonsContainer.style, {
+      display: 'flex',
+      gap: '6px',
+      justifyContent: 'flex-end'
+    });
 
     // Botão de confirmar
     const btnConfirm = document.createElement('button');
-    btnConfirm.textContent = chrome.i18n.getMessage("tooltip_confirm") || '✔';
-    btnConfirm.setAttribute("tabindex", "-1");
+    btnConfirm.innerHTML = '✓';
     Object.assign(btnConfirm.style, {
-      margin: '6px 8px 0 0',
       padding: '4px 8px',
-      background: '#4CAF50',
+      background: 'linear-gradient(135deg, #10b981, #059669)',
       color: '#fff',
       border: 'none',
       borderRadius: '4px',
-      cursor: 'pointer'
+      cursor: 'pointer',
+      fontSize: '12px', // Aumentado de '11px' para '12px'
+      fontWeight: '600',
+      transition: 'all 0.15s ease',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      minWidth: '24px',
+      height: '22px'
     });
 
     // Botão de cancelar
     const btnCancel = document.createElement('button');
-    btnCancel.textContent = chrome.i18n.getMessage("tooltip_cancel") || '✖';
-    btnCancel.setAttribute("tabindex", "-1");
+    btnCancel.innerHTML = '✕';
     Object.assign(btnCancel.style, {
-      margin: '6px 0 0 0',
       padding: '4px 8px',
-      background: '#f44336',
+      background: 'linear-gradient(135deg, #ef4444, #dc2626)',
       color: '#fff',
       border: 'none',
       borderRadius: '4px',
-      cursor: 'pointer'
+      cursor: 'pointer',
+      fontSize: '12px', // Aumentado de '11px' para '12px'
+      fontWeight: '600',
+      transition: 'all 0.15s ease',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      minWidth: '24px',
+      height: '22px'
     });
 
-    tooltip.appendChild(btnConfirm);
-    tooltip.appendChild(btnCancel);
+    // Hover effects
+    btnConfirm.addEventListener('mouseenter', () => {
+      btnConfirm.style.transform = 'scale(1.05)';
+      btnConfirm.style.boxShadow = '0 2px 6px rgba(16, 185, 129, 0.3)';
+    });
+    btnConfirm.addEventListener('mouseleave', () => {
+      btnConfirm.style.transform = 'scale(1)';
+      btnConfirm.style.boxShadow = 'none';
+    });
 
-    // Calcula posição do tooltip
+    btnCancel.addEventListener('mouseenter', () => {
+      btnCancel.style.transform = 'scale(1.05)';
+      btnCancel.style.boxShadow = '0 2px 6px rgba(239, 68, 68, 0.3)';
+    });
+    btnCancel.addEventListener('mouseleave', () => {
+      btnCancel.style.transform = 'scale(1)';
+      btnCancel.style.boxShadow = 'none';
+    });
+
+    buttonsContainer.appendChild(btnCancel);
+    buttonsContainer.appendChild(btnConfirm);
+    
+    container.appendChild(confirmText);
+    container.appendChild(buttonsContainer);
+    tooltip.appendChild(container);
+
+    // Calcula posição
     let top = 0;
     let left = 0;
     if (element.selectionStart !== undefined) {
       const caret = getCaretCoordinates(element, element.selectionStart);
-      top = caret.top + window.scrollY + 20;
+      top = caret.top + window.scrollY + 16;
       left = caret.left + window.scrollX;
     } else {
       const rect = element.getBoundingClientRect();
@@ -132,15 +189,32 @@
       left = rect.left + window.scrollX;
     }
 
+    // Ajusta posição para não sair da tela
+    setTimeout(() => {
+      const tooltipRect = tooltip.getBoundingClientRect();
+      const viewportWidth = window.innerWidth;
+      if (left + tooltipRect.width > viewportWidth - 10) {
+        left = viewportWidth - tooltipRect.width - 10;
+        tooltip.style.left = left + 'px';
+      }
+      if (left < 10) {
+        left = 10;
+        tooltip.style.left = left + 'px';
+      }
+    }, 20);
+
     tooltip.style.top = top + 'px';
     tooltip.style.left = left + 'px';
-    tooltip.style.opacity = '0';
     tooltip.style.display = 'block';
+    tooltip.style.opacity = '0';
+    tooltip.style.transform = 'translateY(3px) scale(0.96)';
+    
     setTimeout(() => {
       tooltip.style.opacity = '1';
+      tooltip.style.transform = 'translateY(0) scale(1)';
     }, 10);
 
-    // Remove listeners antigos antes de adicionar novos
+    // Event listeners
     btnConfirm.addEventListener("mousedown", function (e) {
       e.preventDefault();
       if (typeof confirmCallback === 'function') confirmCallback();
@@ -168,7 +242,7 @@
     };
     document.addEventListener('keydown', keyListener);
 
-    // Esconde o tooltip se o comando sumir do campo
+    // Auto-hide e verificação
     const checkForCompletion = () => {
       if (!currentElement) {
         hideTooltip();

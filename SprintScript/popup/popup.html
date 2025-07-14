@@ -10,27 +10,54 @@
   <div class="container">
     <header>
       <h1 data-i18n="header_title">SprintScript</h1>
+      <!-- Besteirinha 1: Versão discreta -->
+      <span class="version" data-i18n="version">v1.4</span>
     </header>
 
     <div class="form">
-      <label for="shortcut" data-i18n="shortcut_label" class="visually-hidden">Atalho</label>
-      <input type="text" id="shortcut"
-             placeholder=""
-             data-i18n="shortcut_placeholder"
-             aria-label="Atalho" />
+      <div class="input-group">
+        <label for="shortcut" data-i18n="shortcut_label" class="visually-hidden">Atalho</label>
+        <input type="text" id="shortcut"
+               placeholder=""
+               data-i18n="shortcut_placeholder"
+               aria-label="Atalho"
+               maxlength="50"
+               autocomplete="off" />
+        <!-- Besteirinha 2: Contador de caracteres sutil -->
+        <span class="char-count" id="shortcut-count">0/50</span>
+      </div>
 
-      <label for="replacement" data-i18n="replacement_label" class="visually-hidden">Substituição</label>
-      <textarea id="replacement"
-                placeholder=""
-                data-i18n="replacement_placeholder"
-                aria-label="Substituição"></textarea>
+      <div class="input-group">
+        <label for="replacement" data-i18n="replacement_label" class="visually-hidden">Substituição</label>
+        <textarea id="replacement"
+                  placeholder=""
+                  data-i18n="replacement_placeholder"
+                  aria-label="Substituição"
+                  maxlength="2000"
+                  rows="2"></textarea> <!-- Reduzido de rows="3" para rows="2" -->
+        <span class="char-count" id="replacement-count">0/2000</span>
+      </div>
 
-      <button id="saveButton" data-i18n="save_button" aria-label="Salvar"></button>
+      <button id="saveButton" data-i18n="save_button" aria-label="Salvar">
+        <!-- Besteirinha 3: Ícone sutil no botão -->
+        <span class="btn-icon">💾</span>
+        <span data-i18n="save_button">Salvar</span>
+      </button>
+    </div>
+
+    <!-- Besteirinha 4: Estatística simples -->
+    <div class="stats" id="stats">
+      <span data-i18n="total_shortcuts">0 atalhos salvos</span>
     </div>
 
     <ul id="shortcutList"></ul>
 
     <div id="message" class="message" aria-live="polite"></div>
+
+    <!-- Besteirinha 5: Rodapé discreto com dica -->
+    <footer class="footer">
+      <div class="tip" data-i18n="keyboard_tip">💡 Use Enter para salvar, ESC para cancelar</div>
+    </footer>
   </div>
 
   <!-- Modal de confirmação -->
@@ -38,8 +65,8 @@
     <div class="modal-content">
       <p data-i18n="confirm_delete"></p>
       <div class="modal-actions">
-        <button id="confirmDelete" data-i18n="delete_confirmation" tabindex="0" aria-label="Confirmar exclusão"></button>
         <button id="cancelDelete" data-i18n="cancel_delete" tabindex="0" aria-label="Cancelar exclusão"></button>
+        <button id="confirmDelete" data-i18n="delete_confirmation" tabindex="0" aria-label="Confirmar exclusão"></button>
       </div>
     </div>
   </div>

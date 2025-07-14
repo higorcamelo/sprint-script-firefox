@@ -54,6 +54,9 @@ document.addEventListener('DOMContentLoaded', async () => {
   });
 
   document.getElementById("shortcut").focus();
+  setupCharCounters();
+  setupKeyboardShortcuts();
+  updateStats();
 });
 
 function saveShortcut() {
@@ -102,6 +105,7 @@ function saveAndRefresh(shortcuts, shortcut, resolve) {
     chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
       chrome.tabs.sendMessage(tabs[0].id, { action: "updateShortcuts" });
     });
+    updateStats();
     resolve();
   });
 }
@@ -162,6 +166,47 @@ function loadShortcuts() {
   });
 }
 
+// Contador de caracteres
+function setupCharCounters() {
+  const shortcutInput = document.getElementById('shortcut');
+  const replacementInput = document.getElementById('replacement');
+  const shortcutCount = document.getElementById('shortcut-count');
+  const replacementCount = document.getElementById('replacement-count');
+
+  function updateCounter(input, counter, max) {
+    const length = input.value.length;
+    counter.textContent = `${length}/${max}`;
+    
+    counter.classList.remove('warning', 'danger');
+    if (length > max * 0.8) counter.classList.add('warning');
+    if (length > max * 0.95) counter.classList.add('danger');
+  }
+
+  shortcutInput.addEventListener('input', () => updateCounter(shortcutInput, shortcutCount, 50));
+  replacementInput.addEventListener('input', () => updateCounter(replacementInput, replacementCount, 2000));
+}
+
+// Estatísticas simples
+function updateStats() {
+  chrome.storage.sync.get(['shortcuts'], (result) => {
+    const count = Object.keys(result?.shortcuts || {}).length;
+    const statsEl = document.getElementById('stats');
+    if (statsEl) {
+      statsEl.querySelector('[data-i18n="total_shortcuts"]').textContent = 
+        t('total_shortcuts').replace('0', count);
+    }
+  });
+}
+
+// Atalhos de teclado
+function setupKeyboardShortcuts() {
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
+      e.preventDefault();
+      document.getElementById('saveButton').click();
+    }
+  });
+}
 
 function showMessage(message, type) {
   const messageDiv = document.getElementById("message");
